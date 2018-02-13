@@ -1,0 +1,24 @@
+{
+  "name": "totaladvisinglibcalspaceevents",
+  "version": "1.0.0",
+  "description": "lambda function for getting total advising space event nickname content into icalendar format",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "libcal",
+    "springshare",
+    "spaces",
+    "lambda",
+    "aws"
+  ],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uvalib/totaladvisinglibcalspaceevents.git"
+  },
+  "dependencies": {
+    "ical-generator": "^0.2.10",
+    "request": "^2.83.0"
+  }
+}
