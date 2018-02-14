@@ -1,7 +1,7 @@
 {
-  "name": "totaladvisinglibcalspaceevents",
+  "name": "hoursendpoint",
   "version": "1.0.0",
-  "description": "lambda function for getting total advising space event nickname content into icalendar format",
+  "description": "lambda function for getting library hours",
   "main": "index.js",
   "scripts": {},
   "keywords": [
@@ -18,7 +18,6 @@
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
   "dependencies": {
-    "ical-generator": "^0.2.10",
-    "request": "^2.83.0"
+    "object.values": "^1.0.4"
   }
 }
