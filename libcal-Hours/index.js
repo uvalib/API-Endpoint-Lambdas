@@ -14,6 +14,8 @@ exports.handler = (event, context, callback) => {
           Object.values(w).forEach(function(day){
             if (day.times.hours && day.rendered)
               dayHash[day.date] = {hours:day.times.hours, rendered: day.rendered};
+            else if (day.rendered)
+              dayHash[day.date] = {rendered: day.rendered};
           });
           Object.assign(days, dayHash);
         });
@@ -36,7 +38,7 @@ exports.handler = (event, context, callback) => {
         json.forEach(function(loc){
           hash[loc.lid] = toDays(loc.weeks);
         });
-        //console.log(hash);
+//        console.log(hash);
         callback(null, hash);
       });
     });
