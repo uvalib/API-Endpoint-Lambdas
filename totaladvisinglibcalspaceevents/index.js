@@ -49,7 +49,7 @@ exports.handler = (event, context, callback) => {
                 ics_file.createEvent({summary: evt.nickname, start: evt.start, end: evt.end, timestamp: evt.created, location: room_name});
               });
               //console.log(ics_file.toString());
-              space_ics_files.push({room: room_num+'.ics', data: ics_file.toString()});
+              space_ics_files.push({room: room_num, data: ics_file.toString()});
             } // for j
           } // for i
           // if the API call passes the room parameter, then use the code below to
