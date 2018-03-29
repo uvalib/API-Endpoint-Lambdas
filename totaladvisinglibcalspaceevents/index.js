@@ -38,8 +38,13 @@ exports.handler = (event, context, callback) => {
               var room_num = categories[i].spaces[j].name.replace(/\D/g, '');
               var location = categories[i].spaces[j].name;
               var room_name = location + ' ' + grp_name;
-              var ics_file = ical({name: room_name, prodId: {company: company_name, product: product_name}});
-              ics_file.timezone('America/New_York');
+              var ics_file = ical({
+                name: room_name,
+                prodId: {company: company_name, product: product_name},
+                timezone: 'America/New_York',
+                method: 'publish'
+              });
+              ics_file.ttl(60 * 30); //time to live of 30 minutes (same as API cache and Springshare)
               categories[i].spaces[j].bookings.forEach(function(evt, index, init_array) {
                 ics_file.createEvent({summary: evt.nickname, start: evt.start, end: evt.end, timestamp: evt.created, location: room_name});
               });
