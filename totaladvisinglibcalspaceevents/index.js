@@ -19,7 +19,7 @@ exports.handler = (event, context, callback) => {
         var json = JSON.parse(res.body);
         var access_token = json.access_token;
         // Make Spaces API call for desired location Spaces
-        // 3780 and 3781 are the Georges Student Center study room and conferenece room groups
+        // Space category identifiers are configured in the mapping template for each space location. 
         request({
             url: 'https://api2.libcal.com/1.1/space/nickname/' + event['query']['spaceCategories'],
             method: 'GET',
