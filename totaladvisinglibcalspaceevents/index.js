@@ -36,6 +36,8 @@ exports.handler = (event, context, callback) => {
                 // loop through spaces to get events and generate ics file content for each
                 for (var j = 0; j < categories[i].spaces.length; j++) {
                     var room_num = categories[i].spaces[j].name.replace(/\D/g, '');
+                    // if the room does not have a number then replace spaces in string with hyphens
+                    room_num = (room_num != '') ? room_num : categories[i].spaces[j].name.replace(/ /g, '-');                    
                     var location = categories[i].spaces[j].name;
                     var room_name = location + ' ' + grp_name;
                     var ics_file = ical({
