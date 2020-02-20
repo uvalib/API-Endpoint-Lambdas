@@ -33,12 +33,16 @@ exports.handler = (event, context, callback) => {
         body+=data;
       });
       res.on("end", ()=>{
-        var json = JSON.parse(body).locations;
+        var json = JSON.parse(body); //.locations;
         var hash = {};
-        json.forEach(function(loc){
+        Object.keys(json).forEach((key)=>{
+          let loc = json[key];
           hash[loc.lid] = toDays(loc.weeks);
-        });
-//        console.log(hash);
+        })
+//        json.forEach(function(loc){
+//          hash[loc.lid] = toDays(loc.weeks);
+//        });
+//        console.log(hash)
         callback(null, hash);
       });
     });
