@@ -33,15 +33,19 @@ exports.handler = (event, context, callback) => {
         body+=data;
       });
       res.on("end", ()=>{
-        var json = JSON.parse(body).locations;
+        var json = JSON.parse(body); //.locations;
         var hash = {};
-//        Object.keys(json).forEach((key)=>{
-//          let loc = json[key];
-//          hash[loc.lid] = toDays(loc.weeks);
-//        })
-        json.forEach(function(loc){
-          hash[loc.lid] = toDays(loc.weeks);
-        });
+        if (!json.hasOwnProperty('locations')) {
+          Object.keys(json).forEach((key)=>{
+            let loc = json[key];
+            hash[loc.lid] = toDays(loc.weeks);
+          })
+        } else {
+          json = json.locations;
+          json.forEach(function(loc){
+            hash[loc.lid] = toDays(loc.weeks);
+          });
+        }
 //        console.log(hash)
         callback(null, hash);
       });
