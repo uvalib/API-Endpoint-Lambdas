@@ -1,0 +1,20 @@
+{
+  "name": "fillHoldBarcodeReader",
+  "version": "1.0.0",
+  "description": "lambda function for getting hold info and user info",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "lambda",
+    "aws"
+  ],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.0"
+  }
+}
