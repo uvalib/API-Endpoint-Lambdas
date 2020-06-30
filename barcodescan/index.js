@@ -1,46 +1,53 @@
 exports.handler = (event, context, callback) => {
 
-    const https = require("https");
-    const agent = new https.Agent({rejectUnauthorized: false});
     const fetch = require('node-fetch');
-    const holdURL = "https://ils-connector-ws-dev.internal.lib.virginia.edu/v4/requests/fill_hold/";
+    const holdURL = process.env.ilsConnectorUrl+"/v4/requests/fill_hold/";
     const userURL = "https://uva.hosts.atlas-sys.com/illiadwebplatform/Users/ExternalUserId/";
-    const illiadKey = process.env.illiad_key
+    const illiadKey = process.env.ApiKey;
+
+    const jsonHeaders = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*"}
 
     const errorResponse = function(message){
-      return JSON.stringify({
-        "error_messages": [
-          message
-        ]
-      });
+      return JSON.stringify({ "error_messages": [ message ] });
     }
 
     const fetchUserInfo = function(holdInfo){
-      return fetch(userURL+holdInfo['user_id'], { agent:agent, headers:{'ApiKey':illiadKey} })
+      return fetch(userURL+holdInfo['user_id'], { headers:{'ApiKey':illiadKey} })
         .then(res=>res.json())
-        .then(json=>{
-            return JSON.stringify({hold:holdInfo,user:json});
-        })
+        .then(json=>{ return JSON.stringify({hold:holdInfo,user:json}); })
     }
 
-    const barcode = event['query']['barcode'];
+    const barcode =  event['pathParameters']['barcode'];
     if (!barcode) {
-      callback(null, errorResponse("No barcode specified! Please try again with a barcode") );
+      callback(null,
+        {
+          'statusCode': 200,
+          'headers': jsonHeaders,
+          'body': errorResponse("No barcode specified! Please try again with a barcode")
+        }
+      );
     } else {
-      fetch(holdURL+barcode,{ method: 'POST', agent:agent })
+      return fetch(holdURL+barcode,{ method: 'POST', headers:{'Authorization':"Bearer anything"} })
         .then(res=>res.json())
         .then(json=>{
             if ( Array.isArray(json) && json.length === 0 ) {
+                // Invalid barcode most likely
                 return errorResponse("It seems that you have entered an invalid barcode, please check and try again.");
             } else {
                 if (json["user_id"]) {
+                  // Request successful since we have a userid
                   return fetchUserInfo(json);
                 } else {
+                  // Most likely have some errors in the response to pass back
                   return JSON.stringify({hold:json});
                 }
             }
         })
-        .then( hold=>callback(null, hold) );
+        .then( hold=>{
+          // send our response back through the API Gateway
+          callback(null, {'statusCode': 200, 'headers': jsonHeaders, 'body': hold} );
+        });
+
     }
 
 };
