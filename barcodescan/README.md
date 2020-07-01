@@ -11,7 +11,7 @@ For node modules to be available in the Lambda console you need to perform the f
 1. Make sure that you've performed `npm install` to get the required node modules installed.
 2. Zip up the *contents* of this directory, `zip -r fillHoldBarcodeReader.zip .`
 3. Use AWS CLI to upload the code to Lamdba web interface
-`aws lambda update-function-code --function-name fillHoldBarcodeReader --zip-file fileb://./fillHoldBarcodeReader.zip`
+`aws lambda update-function-code --function-name fillholdreader --region us-east-1 --zip-file fileb://./fillHoldBarcodeReader.zip`
 
 Note: If this fails because of fileb setting, you may need to specify the full path to the zip file.
 
