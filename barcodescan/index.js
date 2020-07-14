@@ -37,6 +37,8 @@ exports.handler = async function(event, context, callback) {
     }
 
     if (sessionToken) {
+        // give the user a session token so we don't have to keep passinng that pass around
+        jsonHeaders.sessionToken = sessionToken;
         // continue if we have a session token
         const barcode =  event['pathParameters']['barcode'];
         if (!barcode) {
