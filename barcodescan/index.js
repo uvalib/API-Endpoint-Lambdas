@@ -6,7 +6,12 @@ exports.handler = async function(event, context, callback) {
     const userURL = "https://uva.hosts.atlas-sys.com/illiadwebplatform/Users/ExternalUserId/";
     const illiadKey = process.env.ApiKey;
 
-    const jsonHeaders = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*"}
+    const jsonHeaders = {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': "*",
+      'Access-Control-Expose-Headers': "*"
+    };
+
 
     const errorResponse = function(message){
       return JSON.stringify({ "hold": {"error_messages": [ message ]} });
@@ -20,20 +25,20 @@ exports.handler = async function(event, context, callback) {
 
     const authUser = event.headers["userid"];
     const authPass = event.headers["password"];
-    var sessionToken = event.headers["sessionToken"];
+    var sessionToken = event.headers["sessiontoken"];
 
     // no authentication
     if (!sessionToken && !authUser && !authPass)
-      callback(null, {'statusCode': 403, 'headers': {}, 'body': errorResponse("Please provide a session or user/pass!!!")} );
+      callback(null, {'statusCode': 403, 'headers': jsonHeaders, 'body': errorResponse("Please provide a session or user/pass!!!")} );
     // we have userid and pass but no token, get a session token
     if (!sessionToken && authUser && authPass) {
       const userpass = {username:authUser, password:authPass};
-      let response = await fetch(authURL,{ method: 'POST', headers:{'Content-Type':"application/json"}, body: JSON.stringify(userpass)});
+      let response = await fetch(authURL,{ method: 'POST', headers: jsonHeaders, body: JSON.stringify(userpass)});
       let data = await response.json();
       // yeah, we got a session now!
       if (data.sessionToken) sessionToken = data.sessionToken;
       // yeah, looks like those creds were bad, bummer!
-      else callback(null, {'statusCode': 403, 'headers': {}, 'body': errorResponse("Looks like that user/pass was no good!!!")} );
+      else callback(null, {'statusCode': 403, 'headers': jsonHeaders, 'body': errorResponse("Looks like that user/pass was no good!!!")} );
     }
 
     if (sessionToken) {
@@ -73,7 +78,7 @@ exports.handler = async function(event, context, callback) {
 
         }
     } else {
-       callback(null, {'statusCode': 403, 'headers': {}, 'body': errorResponse("Something odd happened, I'm not sure how you managed to get here!?!")} );
+       callback(null, {'statusCode': 403, 'headers': jsonHeaders, 'body': errorResponse("Something odd happened, I'm not sure how you managed to get here!?!")} );
     }
 
 };
