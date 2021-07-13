@@ -27,6 +27,9 @@ exports.handler = (event, context, callback) => {
                 'x-ems-api-token': clientToken
             },
             body: {
+                'userBookingsOnly': false,
+                'minReserveStartTime': ,
+                'maxReserveStartTime': ,
                 'roomIds': [ ]
             }
         }, function(err, res) {
