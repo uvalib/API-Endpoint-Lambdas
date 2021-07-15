@@ -10,8 +10,8 @@ exports.handler = (event, context, callback) => {
         url: 'http://lb-ems.eservices.virginia.edu/EmsPlatform/api/v1/clientauthentication/ ',
         method: 'POST',
         form: {
-            'clientId': process.env.client_id,
-            'secret': process.env.client_secret
+            'clientId': process.env.ems_api_id,
+            'secret': process.env.ems_api_secret
         }
     }, function(err, res) {
         if (err) return callback(err);
