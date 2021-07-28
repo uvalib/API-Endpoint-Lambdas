@@ -4,27 +4,33 @@ exports.handler = (event, context, callback) => {
         company_name = 'UVA Library',
         product_name = 'AWS Lambda',
         space_ics_files = new Array();
-    // @TODO authentication for EMS API access???
+    // authentication for EMS API access
+    // @TODO ask Dave Goldstein how I go about setting environment variables for this.
     request({
-        url: 'http://lb-ems.eservices.virginia.edu/EMSAPI/Service.asmx',
+        url: 'http://lb-ems.eservices.virginia.edu/EmsPlatform/api/v1/clientauthentication/ ',
         method: 'POST',
         form: {
-            'client_id': process.env.client_id,
-            'client_secret': process.env.client_secret,
-            'grant_type': 'client_credentials'
+            'clientId': process.env.ems_api_id,
+            'secret': process.env.ems_api_secret
         }
     }, function(err, res) {
         if (err) return callback(err);
-        // Save access token for EMS API calls
+        // Save client token for EMS API calls
         var json = JSON.parse(res.body);
-        var access_token = json.access_token;
-        // Make EMSSpaces API call for desired location
+        var clientToken = json.clientToken;
+        // Make EMSSpaces API call for desired location(s)
         // @TODO All EMS Library rooms are pulled via the API at one time???
         request({
-            url: 'http://lb-ems.eservices.virginia.edu/EMSAPI/',
-            method: 'GET',
-            auth: {
-                'bearer': access_token
+            url: 'http://lb-ems.eservices.virginia.edu/EmsPlatform/api/v1/bookings/actions/search',
+            method: 'POST',
+            headers: {
+                'x-ems-api-token': clientToken
+            },
+            body: {
+                'userBookingsOnly': false,
+                'minReserveStartTime': ,
+                'maxReserveStartTime': ,
+                'roomIds': [ ]
             }
         }, function(err, res) {
             // @TODO Adjust this code to accommodate the results of the EMS API calls???
