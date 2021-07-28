@@ -45,7 +45,7 @@ exports.handler = async function(event, context, callback) {
         // give the user a session token so we don't have to keep passinng that pass around
         jsonHeaders.sessionToken = sessionToken;
         // continue if we have a session token
-        const barcode =  event['pathParameters']['barcode'];
+        const barcode =  (event.headers["barcode"])? event.headers["barcode"]: event['pathParameters']['barcode'];
         if (!barcode) {
           callback(null,
             {
@@ -55,9 +55,13 @@ exports.handler = async function(event, context, callback) {
             }
           );
         } else {
-          return fetch(holdURL+barcode,{ method: 'POST', headers:{'Authorization':"Bearer anything",'SirsiSessionToken':sessionToken} })
+          console.log("Attempt barcode api call");
+          console.log(holdURL+barcode);
+          console.log(sessionToken);
+          return fetch(holdURL+barcode,{ method: 'POST', body: '{}', headers:{'Content-Type':'application/json','Authorization':"Bearer anything",'SirsiSessionToken':sessionToken} })
             .then(res=>res.json())
             .then(json=>{
+console.log(json);
                 if ( Array.isArray(json) && json.length === 0 ) {
                     // Invalid barcode most likely
                     return errorResponse("It seems that you have entered an invalid barcode, please check and try again.");
