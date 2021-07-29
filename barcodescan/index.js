@@ -25,7 +25,10 @@ exports.handler = async function(event, context, callback) {
 
     const authUser = event.headers["userid"];
     const authPass = event.headers["password"];
+    const action = event.headers["action"]; // can be set to 'auth' for auth only
     var sessionToken = event.headers["sessiontoken"];
+    var sirsiUser;
+
 
     // no authentication
     if (!sessionToken && !authUser && !authPass)
@@ -34,11 +37,15 @@ exports.handler = async function(event, context, callback) {
     if (!sessionToken && authUser && authPass) {
       const userpass = {username:authUser, password:authPass};
       let response = await fetch(authURL,{ method: 'POST', headers: jsonHeaders, body: JSON.stringify(userpass)});
-      let data = await response.json();
+      sirsiUser = await response.json();
       // yeah, we got a session now!
-      if (data.sessionToken) sessionToken = data.sessionToken;
+      if (sirsiUser.sessionToken) sessionToken = sirsiUser.sessionToken;
       // yeah, looks like those creds were bad, bummer!
-      else callback(null, {'statusCode': 403, 'headers': jsonHeaders, 'body': errorResponse("Looks like that user/pass was no good!!!")} );
+      else callback(null, {'statusCode': 401, 'headers': jsonHeaders, 'body': errorResponse("Looks like that user/pass was no good!!!")} );
+    }
+
+    if (action === "auth" && sirsiUser) {
+      callback(null, {'statusCode': 200, 'headers': jsonHeaders, 'body': JSON.stringify(sirsiUser) } );
     }
 
     if (sessionToken) {
@@ -49,7 +56,7 @@ exports.handler = async function(event, context, callback) {
         if (!barcode) {
           callback(null,
             {
-              'statusCode': 200,
+              'statusCode': 404,
               'headers': jsonHeaders,
               'body': errorResponse("No barcode specified! Please try again with a barcode")
             }
