@@ -7,11 +7,8 @@ exports.handler = async function(event, context, callback) {
     const illiadKey = process.env.ApiKey;
 
     const jsonHeaders = {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': "*",
-      'Access-Control-Expose-Headers': "*"
+      'Content-Type': 'application/json'
     };
-
 
     const errorResponse = function(message){
       return JSON.stringify({ "hold": {"error_messages": [ message ]} });
@@ -48,7 +45,7 @@ exports.handler = async function(event, context, callback) {
       callback(null, {'statusCode': 200, 'headers': jsonHeaders, 'body': JSON.stringify(sirsiUser) } );
     }
 
-    if (sessionToken) {
+    if (sessionToken && action !== "auth") {
         // give the user a session token so we don't have to keep passinng that pass around
         jsonHeaders.sessionToken = sessionToken;
         // continue if we have a session token
@@ -88,7 +85,7 @@ console.log(json);
             });
 
         }
-    } else {
+    } else if (action !== "auth") {
        callback(null, {'statusCode': 403, 'headers': jsonHeaders, 'body': errorResponse("Something odd happened, I'm not sure how you managed to get here!?!")} );
     }
 
