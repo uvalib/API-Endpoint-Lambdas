@@ -35,6 +35,8 @@ exports.handler = async function(event, context, callback) {
       const userpass = {username:authUser, password:authPass};
       let response = await fetch(authURL,{ method: 'POST', headers: jsonHeaders, body: JSON.stringify(userpass)});
       sirsiUser = await response.json();
+console.log("sirsi User return:");
+console.log(sirsiUser);      
       // yeah, we got a session now!
       if (sirsiUser.sessionToken) sessionToken = sirsiUser.sessionToken;
       // yeah, looks like those creds were bad, bummer!
