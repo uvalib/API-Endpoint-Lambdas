@@ -60,9 +60,10 @@ exports.handler = (event, context, callback) => {
                 // loop through the results to retrieve all the events for the room to add to the iCal file
                 for (var k = 0; k < results.length; k++) {
                     if (roomIdArray[i] == results[k].room.id) {
-                        var eventInfo = results[k].eventName + ' / ' + results[k].group.name;
-                        ics_file.createEvent({ summary: eventInfo, start: results[k].eventStartTime,
-                            end: results[k].eventEndTime, timestamp: results[k].audit.dateAdded, 
+                        var startTime = new Date(results[k].eventStartTime).toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true });
+                        var eventInfo = results[k].eventName + ' @ ' + startTime + ' / ' + results[k].group.name;
+                        ics_file.createEvent({ summary: eventInfo, start: results[k].reserveStartTime,
+                            end: results[k].reserveEndTime, timestamp: results[k].audit.dateAdded, 
                             location: results[k].room.description });
                     }
                 } // for k
