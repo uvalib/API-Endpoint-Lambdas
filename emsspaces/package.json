@@ -18,8 +18,8 @@
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
   "dependencies": {
-    "axios": "^0.21.1",
-    "ical-generator": "^1.7.1"
+    "axios": "^0.27.2",
+    "ical-generator": "^3.5.1"
   },
   "devDependencies": {
     "eslint": "^7.32.0"
