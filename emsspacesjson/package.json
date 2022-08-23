@@ -1,0 +1,27 @@
+{
+  "name": "emsspacesjson",
+  "version": "1.0.0",
+  "description": "lambda function for getting EMS space event nickname content into JSON format",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "EMS",
+    "Event Management System",
+    "emsspaces",
+    "lambda",
+    "aws"
+  ],
+  "author": "jlk4p@virginia.edu",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "ical-generator": "^3.5.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
+}
