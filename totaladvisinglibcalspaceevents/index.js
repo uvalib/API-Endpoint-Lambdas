@@ -43,7 +43,6 @@ exports.handler = (event, context, callback) => {
                     var ics_file = ical({
                         name: room_name,
                         prodId: { company: company_name, product: product_name },
-                        timezone: 'America/New_York',
                         method: 'publish'
                     });
                     ics_file.ttl(60 * 30); //time to live of 30 minutes (same as API cache and Springshare)
