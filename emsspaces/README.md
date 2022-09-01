@@ -1,4 +1,4 @@
-# emsapievents
+# emsspaces
 This function is used by the Library API /emsspaces endpoint. It expects an EMS Library location to be passed to it representing one of the Library's physical locations.
 
 Below documents the local setup for pushing out node modules to the AWS Lambda function.

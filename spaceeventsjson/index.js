@@ -1,10 +1,7 @@
 exports.handler = (event, context, callback) => {
-    var axios = require('axios'),
-        ical = require('ical-generator'),
-        company_name = 'UVA Library',
-        product_name = 'AWS Lambda',
-        space_ics_files = new Array();
+    var axios = require('axios');
 
+    // EMS Spaces
     // ID | Room     | Description
     //  6 | 318/318A | Harrison/Small 318
     // 16 | CLEM407  | Clemons 407
@@ -35,44 +32,43 @@ exports.handler = (event, context, callback) => {
             //console.log(JSON.stringify(res.data, null, 2));            
             var data = res.data;
             var results = data.results;
+            var json_file = { event: [] };
+            const timeOptions = { hour12: false, hour: '2-digit', minute: '2-digit' };
             // Loop through each room ID to get those events from the results to generate a single file for each room.
             for (var i = 0; i < roomIdArray.length; i++) {
-                var room_code = '';
-                var room_loc_num = '';
-                var building = '';
-                var ics_file;
-                // loop through results to retrieve one room event to capture room info and initialize iCal file
-                for (var j = 0; j < results.length; j++) {
-                    if (roomIdArray[i] == results[j].room.id) {
-                        room_code = results[j].room.description.replace(/\//g,'-').replace(/ /g,'-');
-                        room_loc_num = results[j].room.description;
-                        building = results[j].room.building.description;
-                        ics_file = ical({
-                            name: building+' '+room_loc_num,
-                            prodId: { company: company_name, product: product_name },
-                            timezone: 'America/New_York',
-                            method: 'publish'
-                        });
-                        ics_file.ttl(60 * 30); //time to live of 30 minutes (same as API cache)
-                        break;
-                    }
-                } // for j
                 // loop through the results to retrieve all the events for the room to add to the iCal file
                 for (var k = 0; k < results.length; k++) {
                     if (roomIdArray[i] == results[k].room.id) {
                         var eventInfo = results[k].eventName + ' / ' + results[k].group.name;
-                        ics_file.createEvent({ summary: eventInfo, start: results[k].reserveStartTime,
-                            end: results[k].reserveEndTime, timestamp: results[k].audit.dateAdded, 
-                            location: results[k].room.description });
+                        const startDt = new Date(results[k].reserveStartTime);
+                        let startDate = startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
+                        const endDt = new Date(results[k].reserveEndTime);
+                        let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
+                        // for an event that ends at midnight
+                        if (endDate.includes("24:00")) {
+                            let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
+                            json_file.event.push({ name: eventInfo, startTime: startDate,
+                                endTime: endDate1, roomName: results[k].room.description, status: "confirmed" });
+                        // for an event that runs past midnight two events need to be created as Visix doesn't support events spanning a day
+                        } else if (endDate.includes("24:")) {
+                            let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
+                            let startDate2 = endDt.toLocaleDateString('en-CA') + ' 00:00';
+                            let endDate2 = endDate.replace("24:", "00:");
+                            json_file.event.push({ name: eventInfo, startTime: startDate,
+                                endTime: endDate1, roomName: results[k].room.description, status: "confirmed" });
+                            json_file.event.push({ name: eventInfo, startTime: startDate2,
+                                endTime: endDate2, roomName: results[k].room.description, status: "confirmed" });
+                        } else {
+                            json_file.event.push({ name: eventInfo, startTime: startDate,
+                                endTime: endDate, roomName: results[k].room.description, status: "confirmed" });
+                        }
                     }
                 } // for k
-                //console.log(room_code);
-                //console.log(ics_file.toString());
-                space_ics_files.push({ room: room_code, data: ics_file.toString() });
             } // for i
             // callback should return the space_ics_files dataset and then the API call using this
             // Lambda function should retrieve the appropriate room data and return it.
-            callback(null, space_ics_files);
+            //console.log(JSON.stringify(json_file));
+            callback(null, JSON.stringify(json_file));
         }).catch((err) => {
             console.error(err);
         })
