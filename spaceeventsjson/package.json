@@ -1,15 +1,18 @@
 {
-  "name": "emsspacesjson",
+  "name": "spaceeventsjson",
   "version": "1.0.0",
-  "description": "lambda function for getting EMS space event nickname content into JSON format",
+  "description": "lambda function for getting EMS and LibCal event content into JSON format",
   "main": "index.js",
   "scripts": {},
   "keywords": [
     "EMS",
     "Event Management System",
-    "emsspaces",
+    "LibCal",
+    "Events",
     "lambda",
-    "aws"
+    "aws",
+    "JSON",
+    "Visix"
   ],
   "author": "jlk4p@virginia.edu",
   "license": "ISC",
@@ -19,7 +22,7 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "ical-generator": "^3.5.1"
+    "request": "^2.88.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0"
