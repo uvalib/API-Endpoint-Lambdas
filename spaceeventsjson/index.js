@@ -34,13 +34,15 @@ exports.handler = (event, context, callback) => {
             var results = data.results;
             var json_file = { event: [] };
             const timeOptions = { hour12: false, hour: '2-digit', minute: '2-digit' };
-            // Loop through each room ID to get those events from the results to generate a single file for each room.
+            // Loop through each room ID to get its events from the results.
             for (var i = 0; i < roomIdArray.length; i++) {
-                // loop through the results to retrieve all the events for the room to add to the iCal file
+                // loop through the results to retrieve each event's details and add to the array to be returned
                 for (var k = 0; k < results.length; k++) {
                     if (roomIdArray[i] == results[k].room.id) {
                         var eventInfo = results[k].eventName + ' / ' + results[k].group.name;
                         const startDt = new Date(results[k].reserveStartTime);
+                        // using the en-CA Canadian locale for date strings to get a format of YYYY-MM-DD since US locale does not 
+                        // return that format by default.
                         let startDate = startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
                         const endDt = new Date(results[k].reserveEndTime);
                         let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
