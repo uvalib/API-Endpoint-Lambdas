@@ -1,5 +1,7 @@
 exports.handler = (event, context, callback) => {
-    var axios = require('axios');
+    const axios = require('axios');
+    const json_file = { event: [] };
+    const timeOptions = { hour12: false, hour: '2-digit', minute: '2-digit' };
 
     // EMS Spaces
     // ID | Room     | Description
@@ -7,10 +9,10 @@ exports.handler = (event, context, callback) => {
     // 16 | CLEM407  | Clemons 407
     // 17 | CLK133   | Brown 133
     // 19 | CLEM322  | Clemons 322
-    var roomIdArray = [ 6, 16, 17, 19 ];
+    let roomIdArray = [ 6, 16, 17, 19 ];
 
     // authentication for EMS API access
-    var data = { 
+    let data = { 
         'clientID': process.env.ems_api_id,
         'secret': process.env.ems_api_secret
     };
@@ -18,10 +20,10 @@ exports.handler = (event, context, callback) => {
     .then((res) => {
         //console.log(`Status: ${res.status}`);
         //console.log(res.data);
-        var token = res.data.clientToken;
-        var config = { headers: { 'x-ems-api-token': token } };
-        var today = (new Date()).toISOString().split('T')[0] + 'T00:00:00Z';
-        data = {
+        let token = res.data.clientToken;
+        let config = { headers: { 'x-ems-api-token': token } };
+        let today = (new Date()).toISOString().split('T')[0] + 'T00:00:00Z';
+        let data = {
             'userBookingsOnly': false,
             'minReserveStartTime': today,
             'roomIds': roomIdArray
@@ -30,21 +32,19 @@ exports.handler = (event, context, callback) => {
         .then((res) => {
             //console.log(`Status: ${res.status}`);
             //console.log(JSON.stringify(res.data, null, 2));            
-            var data = res.data;
-            var results = data.results;
-            var json_file = { event: [] };
-            const timeOptions = { hour12: false, hour: '2-digit', minute: '2-digit' };
+            let data = res.data;
+            let results = data.results;
             // Loop through each room ID to get its events from the results.
-            for (var i = 0; i < roomIdArray.length; i++) {
+            for (let i = 0; i < roomIdArray.length; i++) {
                 // loop through the results to retrieve each event's details and add to the array to be returned
-                for (var k = 0; k < results.length; k++) {
+                for (let k = 0; k < results.length; k++) {
                     if (roomIdArray[i] == results[k].room.id) {
-                        var eventInfo = results[k].eventName + ' / ' + results[k].group.name;
-                        const startDt = new Date(results[k].reserveStartTime);
+                        let eventInfo = results[k].eventName + ' / ' + results[k].group.name;
+                        let startDt = new Date(results[k].reserveStartTime);
                         // using the en-CA Canadian locale for date strings to get a format of YYYY-MM-DD since US locale does not 
                         // return that format by default.
                         let startDate = startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
-                        const endDt = new Date(results[k].reserveEndTime);
+                        let endDt = new Date(results[k].reserveEndTime);
                         let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
                         // for an event that ends at midnight
                         if (endDate.includes("24:00")) {
