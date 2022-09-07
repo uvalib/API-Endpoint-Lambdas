@@ -67,10 +67,9 @@ exports.handler = (event, context, callback) => {
                     }
                 } // for k
             } // for i
-            // callback should return the space_ics_files dataset and then the API call using this
-            // Lambda function should retrieve the appropriate room data and return it.
             //console.log(JSON.stringify(json_file));
-            callback(null, JSON.stringify(json_file));
+            // return JSON data for all events for all EMS and LibCal spaced referenced.
+            callback(null, json_file);
         }).catch((err) => {
             console.error(err);
         })
