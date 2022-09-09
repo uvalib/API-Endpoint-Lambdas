@@ -115,9 +115,9 @@ exports.handler = (event, context, callback) => {
                             let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
                             // LibCal for reserving after midnight in location that is open from mid-day overnight to next morning.
                             if (startDate.includes("24:")) {
-                                startDate.replace("24:", "00:");
+                                startDate = startDate.replace("24:", "00:");
                                 if (endDate.includes("24:")) {
-                                    endDate.replace("24:","00:");
+                                    endDate = endDate.replace("24:","00:");
                                 }
                                 json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate, roomName: location, status: "confirmed" });
                             // for an event that ends at midnight
