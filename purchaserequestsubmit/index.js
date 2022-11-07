@@ -49,6 +49,8 @@ exports.handler = (event, context, callback) => {
 
     // @TODO parse the form submission to generate a dataset object to send to LibInsight
     
-    // @TODO if an error occurs report an error???
+    // @TODO if an error occurs report it
 
+    // return something???
+    callback(null);
 };
