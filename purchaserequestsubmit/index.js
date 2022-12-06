@@ -1,5 +1,5 @@
 exports.handler = (event, context, callback) => {
-
+    const formName = 'Purchase Recommendation';
     const nodeFetch = require('node-fetch');
     const stripHtml = require('string-strip-html');
     const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
@@ -232,8 +232,8 @@ exports.handler = (event, context, callback) => {
         // Library location depends on if the item is for reserve and which library location was specified.
         // Since fund code and library location are for admin purposes, they will not get saved to LibInsight data.
         let msg = fundCode = libraryLocation = '';
-        let format = pData.fields.find(t=>t.field_id === '4512446') ? pData.fields.find(t=>t.field_id === '4512446').val : 'Unknown';
-        let forCourseReserves = pData.fields.find(t=>t.field_id === '4512610') ? pData.fields.find(t=>t.field_id === '4512610').val : '';
+        let format = pData.fields.find(t=>t.field_id === 4512446) ? pData.fields.find(t=>t.field_id === 4512446).val : 'Unknown';
+        let forCourseReserves = pData.fields.find(t=>t.field_id === 4512610) ? pData.fields.find(t=>t.field_id === 4512610).val : '';
         forCourseReserves = (forCourseReserves === 'Yes') ? forCourseReserves : 'No' ;
         if (forCourseReserves === "Yes") {
             if ((format === "Other") || (format === "Book") || (format === "eBook") || (format === "Dissertation or Thesis") || (format === "Music Recording")) {
@@ -245,21 +245,11 @@ exports.handler = (event, context, callback) => {
                 fundCode = "UL-REQUESTS";
                 libraryLocation = (format !== "Music Recording") ? "LC CLASS" : "Music";
             }
-            libraryLocation = (frmData.fld_format.value !== "Music Recording") ? "LC CLASS" : "Music";
+            libraryLocation = (format !== "Music Recording") ? "LC CLASS" : "Music";
         }
         libraryLocation = (format === "Music Score") ? "Music" : libraryLocation;
         adminMsg += "<strong>Fund code:</strong> " + fundCode + "<br>\n";
         adminMsg += "<strong>Library location:</strong> " + libraryLocation + "<br>\n";
-    /*    
-        if (forCourseReserves === "Yes") {
-            if (frmData.sect_course_information.fields.fld_at_which_library_should_this_item_go_on_reserve_.value) {
-                adminMsg += "<strong>Library reserve hold location:</strong> " + frmData.sect_course_information.fields.fld_at_which_library_should_this_item_go_on_reserve_.value + "<br>\n";
-            }
-            if (frmData.sect_course_information.fields.fld_what_loan_period_should_be_applied_to_this_item_.value) {
-                adminMsg += "<strong>Library reserve loan period:</strong> " + frmData.sect_course_information.fields.fld_what_loan_period_should_be_applied_to_this_item_.value + "<br>\n";
-            }
-        }
-    */
     
         msg = "<strong>Format:</strong> " + format + "<br>\n";
         adminMsg += msg;
@@ -270,15 +260,15 @@ exports.handler = (event, context, callback) => {
         let electronicVersionPreferred;
         switch (format) {
             case 'Book':
-                electronicVersionPreferred = pData.fields.find(t=>t.field_id === '4513058') ? pData.fields.find(t=>t.field_id === '4513058').val : '';
+                electronicVersionPreferred = pData.fields.find(t=>t.field_id === 4513058) ? pData.fields.find(t=>t.field_id === 4513058).val : '';
                 electronicVersionPreferred = (electronicVersionPreferred === 'Yes') ? electronicVersionPreferred : 'No' ;
                 break;
             case 'Dissertation or Thesis':
-                electronicVersionPreferred = pData.fields.find(t=>t.field_id === '4512988') ? pData.fields.find(t=>t.field_id === '4512988').val : '';
+                electronicVersionPreferred = pData.fields.find(t=>t.field_id === 4512988) ? pData.fields.find(t=>t.field_id === 4512988).val : '';
                 electronicVersionPreferred = (electronicVersionPreferred === 'Yes') ? electronicVersionPreferred : 'No' ;
                 break;
             case 'Other':
-                electronicVersionPreferred = pData.fields.find(t=>t.field_id === '4512775') ? pData.fields.find(t=>t.field_id === '4512775').val : '';
+                electronicVersionPreferred = pData.fields.find(t=>t.field_id === 4512775) ? pData.fields.find(t=>t.field_id === 4512775).val : '';
                 electronicVersionPreferred = (electronicVersionPreferred === 'Yes') ? electronicVersionPreferred : 'No' ;
                 break;
             default:
@@ -292,7 +282,7 @@ exports.handler = (event, context, callback) => {
         }
 
         // type of request field is required and available for book and ebook
-        let typeOfRequest = pData.fields.find(t=>t.field_id === '4513048').val;
+        let typeOfRequest = pData.fields.find(t=>t.field_id === 4513048).val;
         if ((format === 'Book') || (format === 'eBook')) {
             msg = "<strong>Type of request:</strong> " + typeOfRequest + "<br>\n";
             adminMsg += msg;
@@ -313,33 +303,33 @@ exports.handler = (event, context, callback) => {
             courseInfo += "\n<h3>Course Information</h3>\n\n<p>";
             // Currently no library location field exists on the purchase form so this field doesn't need to get populated since not required in LibInsight
             // data['field_655'] = 'library location value goes here';
-            let courseTerm = pData.fields.find(t=>t.field_id === '4512624').val;
+            let courseTerm = pData.fields.find(t=>t.field_id === 4512624).val;
             courseInfo += "<strong>Term:</strong> " + courseTerm + "<br>\n";
             data['field_648'] = courseTerm;
-            let course = pData.fields.find(t=>t.field_id === '4512628') ? pData.fields.find(t=>t.field_id === '4512628').val : '';
+            let course = pData.fields.find(t=>t.field_id === 4512628) ? pData.fields.find(t=>t.field_id === 4512628).val : '';
             courseInfo += "<strong>Course:</strong> " + course + "<br>\n";
             data['field_649'] = course;
-            let courseSection = pData.fields.find(t=>t.field_id === '4512627') ? pData.fields.find(t=>t.field_id === '4512627').val : '';
+            let courseSection = pData.fields.find(t=>t.field_id === 4512627) ? pData.fields.find(t=>t.field_id === 4512627).val : '';
             if (courseSection !== '') {
                 courseInfo += "<strong>Section:</strong> " + courseSection + "<br>\n";
                 data['field_650'] = courseSection;
             }
-            let altCourse = pData.fields.find(t=>t.field_id === '4512631') ? pData.fields.find(t=>t.field_id === '4512631').val : '';
+            let altCourse = pData.fields.find(t=>t.field_id === 4512631) ? pData.fields.find(t=>t.field_id === 4512631).val : '';
             if (altCourse !== '') {
                 courseInfo += "<strong>Alternate course:</strong> " + altCourse + "<br>\n";
                 data['field_651'] = altCourse;
             }
-            let altSection = pData.fields.find(t=>t.field_id === '4512634') ? pData.fields.find(t=>t.field_id === '4512634').val : '';
+            let altSection = pData.fields.find(t=>t.field_id === 4512634) ? pData.fields.find(t=>t.field_id === 4512634).val : '';
             if (altSection !== '') {
                 courseInfo += "<strong>Alternate course section:</strong> " + altSection + "<br>\n";
                 data['field_652'] = altSection;
             }
-            let courseTitle = pData.fields.find(t=>t.field_id === '4512638') ? pData.fields.find(t=>t.field_id === '4512638').val : '';
+            let courseTitle = pData.fields.find(t=>t.field_id === 4512638) ? pData.fields.find(t=>t.field_id === 4512638).val : '';
             if (courseTitle !== '') {
                 courseInfo += "<strong>Title:</strong> " + courseTitle + "<br>\n";
                 data['field_653'] = courseTitle;
             }
-            let courseEnrollment = pData.fields.find(t=>t.field_id === '4512640') ? pData.fields.find(t=>t.field_id === '4512640').val : '';
+            let courseEnrollment = pData.fields.find(t=>t.field_id === 4512640) ? pData.fields.find(t=>t.field_id === 4512640).val : '';
             if (courseEnrollment) {
                 courseInfo += "<strong>Enrollment:</strong> " + courseEnrollment + "<br>\n";
                 data['field_654'] = courseEnrollment;
@@ -357,10 +347,10 @@ exports.handler = (event, context, callback) => {
         requestorInfo += "\n<h3>";
         requestorInfo += (forCourseReserves === "Yes") ? "Requested" : "Suggested";
         requestorInfo += " by</h3>\n\n<p>";
-        let name = pData.fields.find(t=>t.field_id === '4512399') ? pData.fields.find(t=>t.field_id === '4512399').val : '';
+        let name = pData.fields.find(t=>t.field_id === 4512399) ? pData.fields.find(t=>t.field_id === 4512399).val : 'unknown';
         requestorInfo += "<strong>Name:</strong> " + name + "<br>\n";
-        data['field_687'] = frmData.sect_requestor_information.fields.fld_name.value;
-        let emailAddress = pData.fields.find(t=>t.field_id === '4512400') ? pData.fields.find(t=>t.field_id === '4512400').val : '';
+        data['field_687'] = name;
+        let emailAddress = pData.fields.find(t=>t.field_id === 4512400) ? pData.fields.find(t=>t.field_id === 4512400).val : 'unknown';
         requestorInfo += "<strong>Email address:</strong> " + emailAddress + "<br>\n";
         data['field_688'] = emailAddress;
         let id = emailAddress.split('@');
@@ -369,15 +359,15 @@ exports.handler = (event, context, callback) => {
             requestorInfo += "<strong>UVA Computing ID:</strong> " + computingId + "<br>\n";
             data['field_686'] = computingId;
         }
-        let phoneNumber = pData.fields.find(t=>t.field_id === '4512426') ? pData.fields.find(t=>t.field_id === '4512426').val : '';
+        let phoneNumber = pData.fields.find(t=>t.field_id === 4512426) ? pData.fields.find(t=>t.field_id === 4512426).val : '';
         if (phoneNumber !== '') {
             requestorInfo += "<strong>Phone number:</strong> " + phoneNumber + "<br>\n";
             data['field_689'] = phoneNumber;
         }
-        let affiliation = pData.fields.find(t=>t.field_id === '4512402') ? pData.fields.find(t=>t.field_id === '4512402').val : '';
+        let affiliation = pData.fields.find(t=>t.field_id === 4512402) ? pData.fields.find(t=>t.field_id === 4512402).val : '';
         requestorInfo += "<strong>University affiliation:</strong> " + affiliation + "<br>\n";
         data['field_690'] = affiliation;
-        let department = pData.fields.find(t=>t.field_id === '4512419') ? pData.fields.find(t=>t.field_id === '4512419').val : '';
+        let department = pData.fields.find(t=>t.field_id === 4512419) ? pData.fields.find(t=>t.field_id === 4512419).val : '';
         if (department !== '') {
             requestorInfo += "<strong>University department or school:</strong> " + department + "<br>\n";
             data['field_691'] = department;
@@ -393,10 +383,10 @@ exports.handler = (event, context, callback) => {
         let isbn;
         switch (format) {
             case 'Book':
-                isbn = pData.fields.find(t=>t.field_id === '4513063') ? pData.fields.find(t=>t.field_id === '4513063').val : '';
+                isbn = pData.fields.find(t=>t.field_id === 4513063) ? pData.fields.find(t=>t.field_id === 4513063).val : '';
                 break;
             case 'eBook':
-                isbn = pData.fields.find(t=>t.field_id === '4513042') ? pData.fields.find(t=>t.field_id === '4513042').val : '';
+                isbn = pData.fields.find(t=>t.field_id === 4513042) ? pData.fields.find(t=>t.field_id === 4513042).val : '';
                 break;
             default:
                 isbn = '';
@@ -408,22 +398,22 @@ exports.handler = (event, context, callback) => {
         let title;
         switch (format) {
             case 'Book':
-                title = pData.fields.find(t=>t.field_id === '4513057') ? pData.fields.find(t=>t.field_id === '4513057').val : '';
+                title = pData.fields.find(t=>t.field_id === 4513057) ? pData.fields.find(t=>t.field_id === 4513057).val : '';
                 break;
             case 'eBook':
-                title = pData.fields.find(t=>t.field_id === '4513037') ? pData.fields.find(t=>t.field_id === '4513037').val : '';
+                title = pData.fields.find(t=>t.field_id === 4513037) ? pData.fields.find(t=>t.field_id === 4513037).val : '';
                 break;
             case 'Dissertation or Thesis':
-                title = pData.fields.find(t=>t.field_id === '4512986') ? pData.fields.find(t=>t.field_id === '4512986').val : '';
+                title = pData.fields.find(t=>t.field_id === 4512986) ? pData.fields.find(t=>t.field_id === 4512986).val : '';
                 break;
             case 'Music Recording':
-                title = pData.fields.find(t=>t.field_id === '4512952') ? pData.fields.find(t=>t.field_id === '4512952').val : '';
+                title = pData.fields.find(t=>t.field_id === 4512952) ? pData.fields.find(t=>t.field_id === 4512952).val : '';
                 break;
             case 'Music Score':
-                title = pData.fields.find(t=>t.field_id === '4512897') ? pData.fields.find(t=>t.field_id === '4512897').val : '';
+                title = pData.fields.find(t=>t.field_id === 4512897) ? pData.fields.find(t=>t.field_id === 4512897).val : '';
                 break;
             case 'Video':
-                title = pData.fields.find(t=>t.field_id === '4512850') ? pData.fields.find(t=>t.field_id === '4512850').val : '';
+                title = pData.fields.find(t=>t.field_id === 4512850) ? pData.fields.find(t=>t.field_id === 4512850).val : '';
                 break;
             default:
                 title = '';
@@ -435,16 +425,16 @@ exports.handler = (event, context, callback) => {
         let nameTitle;
         switch (format) {
             case 'Database':
-                nameTitle = pData.fields.find(t=>t.field_id === '4513023') ? pData.fields.find(t=>t.field_id === '4513023').val : '';
+                nameTitle = pData.fields.find(t=>t.field_id === 4513023) ? pData.fields.find(t=>t.field_id === 4513023).val : '';
                 break;
             case 'Dataset':
-                nameTitle = pData.fields.find(t=>t.field_id === '4513011') ? pData.fields.find(t=>t.field_id === '4513011').val : '';
+                nameTitle = pData.fields.find(t=>t.field_id === 4513011) ? pData.fields.find(t=>t.field_id === 4513011).val : '';
                 break;
-            case 'Journal':
-                nameTitle = pData.fields.find(t=>t.field_id === '4512965') ? pData.fields.find(t=>t.field_id === '4512965').val : '';
+            case 'Journal Subscription':
+                nameTitle = pData.fields.find(t=>t.field_id === 4512965) ? pData.fields.find(t=>t.field_id === 4512965).val : '';
                 break;
             case 'Other':
-                nameTitle = pData.fields.find(t=>t.field_id === '4512768') ? pData.fields.find(t=>t.field_id === '4512768').val : '';
+                nameTitle = pData.fields.find(t=>t.field_id === 4512768) ? pData.fields.find(t=>t.field_id === 4512768).val : '';
                 break;
             default:
                 nameTitle = '';
@@ -456,10 +446,10 @@ exports.handler = (event, context, callback) => {
         let authorEditor;
         switch (format) {
             case 'Book':
-                authorEditor = pData.fields.find(t=>t.field_id === '4513059') ? pData.fields.find(t=>t.field_id === '4513059').val : '';
+                authorEditor = pData.fields.find(t=>t.field_id === 4513059) ? pData.fields.find(t=>t.field_id === 4513059).val : '';
                 break;
             case 'eBook':
-                authorEditor = pData.fields.find(t=>t.field_id === '4513038') ? pData.fields.find(t=>t.field_id === '4513038').val : '';
+                authorEditor = pData.fields.find(t=>t.field_id === 4513038) ? pData.fields.find(t=>t.field_id === 4513038).val : '';
                 break;
             default:
                 authorEditor = '';
@@ -471,7 +461,7 @@ exports.handler = (event, context, callback) => {
         let author;
         switch (format) {
             case 'Dissertation or Thesis':
-                author = pData.fields.find(t=>t.field_id === '4512993') ? pData.fields.find(t=>t.field_id === '4512993').val : '';
+                author = pData.fields.find(t=>t.field_id === 4512993) ? pData.fields.find(t=>t.field_id === 4512993).val : '';
                 break;
             default:
                 author = '';
@@ -483,7 +473,7 @@ exports.handler = (event, context, callback) => {
         let director;
         switch (format) {
             case 'Video':
-                director = pData.fields.find(t=>t.field_id === '4512852') ? pData.fields.find(t=>t.field_id === '4512852').val : '';
+                director = pData.fields.find(t=>t.field_id === 4512852) ? pData.fields.find(t=>t.field_id === 4512852).val : '';
                 break;
             default:
                 director = '';
@@ -495,8 +485,8 @@ exports.handler = (event, context, callback) => {
         let composers, performers;
         switch (format) {
             case 'Music Recording':
-                composers = pData.fields.find(t=>t.field_id === '4512953') ? pData.fields.find(t=>t.field_id === '4512953').val : '';
-                performers = pData.fields.find(t=>t.field_id === '4512954') ? pData.fields.find(t=>t.field_id === '4512954').val : '';
+                composers = pData.fields.find(t=>t.field_id === 4512953) ? pData.fields.find(t=>t.field_id === 4512953).val : '';
+                performers = pData.fields.find(t=>t.field_id === 4512954) ? pData.fields.find(t=>t.field_id === 4512954).val : '';
                 break;
             default:
                 composers = '';
@@ -513,7 +503,7 @@ exports.handler = (event, context, callback) => {
         let composerEditor;
         switch (format) {
             case 'Music Score':
-                composerEditor = pData.fields.find(t=>t.field_id === '4512899') ? pData.fields.find(t=>t.field_id === '4512899').val : '';
+                composerEditor = pData.fields.find(t=>t.field_id === 4512899) ? pData.fields.find(t=>t.field_id === 4512899).val : '';
                 break;
             default:
                 composerEditor = '';
@@ -525,13 +515,13 @@ exports.handler = (event, context, callback) => {
         let publisher;
         switch (format) {
             case 'Book':
-                publisher = pData.fields.find(t=>t.field_id === '4513060') ? pData.fields.find(t=>t.field_id === '4513060').val : '';
+                publisher = pData.fields.find(t=>t.field_id === 4513060) ? pData.fields.find(t=>t.field_id === 4513060).val : '';
                 break;
             case 'eBook':
-                publisher = pData.fields.find(t=>t.field_id === '4513039') ? pData.fields.find(t=>t.field_id === '4513039').val : '';
+                publisher = pData.fields.find(t=>t.field_id === 4513039) ? pData.fields.find(t=>t.field_id === 4513039).val : '';
                 break;
             case 'Music Score':
-                publisher = pData.fields.find(t=>t.field_id === '4512900') ? pData.fields.find(t=>t.field_id === '4512900').val : '';
+                publisher = pData.fields.find(t=>t.field_id === 4512900) ? pData.fields.find(t=>t.field_id === 4512900).val : '';
                 break;
             default:
                 publisher = '';
@@ -543,10 +533,10 @@ exports.handler = (event, context, callback) => {
         let creatorPublisherVendor;
         switch (format) {
             case 'Database':
-                creatorPublisherVendor = pData.fields.find(t=>t.field_id === '4513024') ? pData.fields.find(t=>t.field_id === '4513024').val : '';
+                creatorPublisherVendor = pData.fields.find(t=>t.field_id === 4513024) ? pData.fields.find(t=>t.field_id === 4513024).val : '';
                 break;
             case 'Dataset':
-                creatorPublisherVendor = pData.fields.find(t=>t.field_id === '4513012') ? pData.fields.find(t=>t.field_id === '4513012').val : '';
+                creatorPublisherVendor = pData.fields.find(t=>t.field_id === 4513012) ? pData.fields.find(t=>t.field_id === 4513012).val : '';
                 break;
             default:
                 creatorPublisherVendor = '';
@@ -558,7 +548,7 @@ exports.handler = (event, context, callback) => {
         let publisherVendor;
         switch (format) {
             case 'Journal Subscription':
-                publisherVendor = pData.fields.find(t=>t.field_id === '4512967') ? pData.fields.find(t=>t.field_id === '4512967').val : '';
+                publisherVendor = pData.fields.find(t=>t.field_id === 4512967) ? pData.fields.find(t=>t.field_id === 4512967).val : '';
                 break;
             default:
                 publisherVendor = '';
@@ -570,7 +560,7 @@ exports.handler = (event, context, callback) => {
         let producerPublisherCreator;
         switch (format) {
             case 'Other':
-                producerPublisherCreator = pData.fields.find(t=>t.field_id === '4512777') ? pData.fields.find(t=>t.field_id === '4512777').val : '';
+                producerPublisherCreator = pData.fields.find(t=>t.field_id === 4512777) ? pData.fields.find(t=>t.field_id === 4512777).val : '';
                 break;
             default:
                 producerPublisherCreator = '';
@@ -582,7 +572,7 @@ exports.handler = (event, context, callback) => {
         let institutionGrantingDegree;
         switch (format) {
             case 'Dissertation or Thesis':
-                institutionGrantingDegree = pData.fields.find(t=>t.field_id === '4513001') ? pData.fields.find(t=>t.field_id === '4513001').val : '';
+                institutionGrantingDegree = pData.fields.find(t=>t.field_id === 4513001) ? pData.fields.find(t=>t.field_id === 4513001).val : '';
                 break;
             default:
                 institutionGrantingDegree = '';
@@ -594,7 +584,7 @@ exports.handler = (event, context, callback) => {
         let recordLabel;
         switch (format) {
             case 'Music Recording':
-                recordLabel = pData.fields.find(t=>t.field_id === '4512955') ? pData.fields.find(t=>t.field_id === '4512955').val : '';
+                recordLabel = pData.fields.find(t=>t.field_id === 4512955) ? pData.fields.find(t=>t.field_id === 4512955).val : '';
                 break;
             default:
                 recordLabel = '';
@@ -606,13 +596,13 @@ exports.handler = (event, context, callback) => {
         let dateOfPublication;
         switch (format) {
             case 'Book':
-                dateOfPublication = pData.fields.find(t=>t.field_id === '4513062') ? pData.fields.find(t=>t.field_id === '4513062').val : '';
+                dateOfPublication = pData.fields.find(t=>t.field_id === 4513062) ? pData.fields.find(t=>t.field_id === 4513062).val : '';
                 break;
             case 'eBook':
-                dateOfPublication = pData.fields.find(t=>t.field_id === '4513041') ? pData.fields.find(t=>t.field_id === '4513041').val : '';
+                dateOfPublication = pData.fields.find(t=>t.field_id === 4513041) ? pData.fields.find(t=>t.field_id === 4513041).val : '';
                 break;
             case 'Dissertation or Thesis':
-                dateOfPublication = pData.fields.find(t=>t.field_id === '4513003') ? pData.fields.find(t=>t.field_id === '4513003').val : '';
+                dateOfPublication = pData.fields.find(t=>t.field_id === 4513003) ? pData.fields.find(t=>t.field_id === 4513003).val : '';
                 break;
             default:
                 dateOfPublication = '';
@@ -624,7 +614,7 @@ exports.handler = (event, context, callback) => {
         let releaseDate;
         switch (format) {
             case 'Music Recording':
-                releaseDate = pData.fields.find(t=>t.field_id === '4512956') ? pData.fields.find(t=>t.field_id === '4512956').val : '';
+                releaseDate = pData.fields.find(t=>t.field_id === 4512956) ? pData.fields.find(t=>t.field_id === 4512956).val : '';
                 break;
             default:
                 releaseDate = '';
@@ -636,7 +626,7 @@ exports.handler = (event, context, callback) => {
         let yearOfPublication;
         switch (format) {
             case 'Music Score':
-                yearOfPublication = pData.fields.find(t=>t.field_id === '4512901') ? pData.fields.find(t=>t.field_id === '4512901').val : '';
+                yearOfPublication = pData.fields.find(t=>t.field_id === 4512901) ? pData.fields.find(t=>t.field_id === 4512901).val : '';
                 break;
             default:
                 yearOfPublication = '';
@@ -648,7 +638,7 @@ exports.handler = (event, context, callback) => {
         let productionDate;
         switch (format) {
             case 'Video':
-                productionDate = pData.fields.find(t=>t.field_id === '4512853') ? pData.fields.find(t=>t.field_id === '4512853').val : '';
+                productionDate = pData.fields.find(t=>t.field_id === 4512853) ? pData.fields.find(t=>t.field_id === 4512853).val : '';
                 break;
             default:
                 productionDate = '';
@@ -660,10 +650,10 @@ exports.handler = (event, context, callback) => {
         let edition;
         switch (format) {
             case 'Book':
-                edition = pData.fields.find(t=>t.field_id === '4513064') ? pData.fields.find(t=>t.field_id === '4513064').val : '';
+                edition = pData.fields.find(t=>t.field_id === 4513064) ? pData.fields.find(t=>t.field_id === 4513064).val : '';
                 break;
             case 'eBook':
-                edition = pData.fields.find(t=>t.field_id === '4513043') ? pData.fields.find(t=>t.field_id === '4513043').val : '';
+                edition = pData.fields.find(t=>t.field_id === 4513043) ? pData.fields.find(t=>t.field_id === 4513043).val : '';
                 break;
             default:
                 edition = '';
@@ -675,10 +665,10 @@ exports.handler = (event, context, callback) => {
         let editionVersion;
         switch (format) {
             case 'Music Score':
-                editionVersion = pData.fields.find(t=>t.field_id === '4512902') ? pData.fields.find(t=>t.field_id === '4512902').val : '';
+                editionVersion = pData.fields.find(t=>t.field_id === 4512902) ? pData.fields.find(t=>t.field_id === 4512902).val : '';
                 break;
             case 'Video':
-                editionVersion = pData.fields.find(t=>t.field_id === '4512869') ? pData.fields.find(t=>t.field_id === '4512869').val : '';
+                editionVersion = pData.fields.find(t=>t.field_id === 4512869) ? pData.fields.find(t=>t.field_id === 4512869).val : '';
                 break;
             default:
                 editionVersion = '';
@@ -687,10 +677,22 @@ exports.handler = (event, context, callback) => {
             biblioInfo += "<strong>Edition/Version:</strong> " + editionVersion + "<br>\n";
             data['field_676'] = editionVersion;
         }
+        let versionInfo;
+        switch (format) {
+            case 'Music Recording':
+                versionInfo = pData.fields.find(t=>t.field_id === 4512958) ? pData.fields.find(t=>t.field_id === 4512958).val : '';
+                break;
+            default:
+                versionInfo = '';
+        }
+        if (versionInfo !== '') {
+            biblioInfo += "<strong>Version info:</strong> " + versionInfo + "<br>\n";
+            data['field_677'] = versionInfo;
+        }
         let whatDoesDatasetCover;
         switch (format) {
             case 'Dataset':
-                whatDoesDatasetCover = pData.fields.find(t=>t.field_id === '4513013') ? pData.fields.find(t=>t.field_id === '4513013').val : '';
+                whatDoesDatasetCover = pData.fields.find(t=>t.field_id === 4513013) ? pData.fields.find(t=>t.field_id === 4513013).val : '';
                 break;
             default:
                 whatDoesDatasetCover = '';
@@ -702,7 +704,7 @@ exports.handler = (event, context, callback) => {
         let whatDoesSubscriptionCover;
         switch (format) {
             case 'Journal Subscription':
-                whatDoesSubscriptionCover = pData.fields.find(t=>t.field_id === '4512969') ? pData.fields.find(t=>t.field_id === '4512969').val : '';
+                whatDoesSubscriptionCover = pData.fields.find(t=>t.field_id === 4512969) ? pData.fields.find(t=>t.field_id === 4512969).val : '';
                 break;
             default:
                 whatDoesSubscriptionCover = '';
@@ -714,13 +716,13 @@ exports.handler = (event, context, callback) => {
         let whatClassesMightUseThis;
         switch (format) {
             case 'Database':
-                whatClassesMightUseThis = pData.fields.find(t=>t.field_id === '4513026') ? pData.fields.find(t=>t.field_id === '4513026').val : '';
+                whatClassesMightUseThis = pData.fields.find(t=>t.field_id === 4513026) ? pData.fields.find(t=>t.field_id === 4513026).val : '';
                 break;
             case 'Dataset':
-                whatClassesMightUseThis = pData.fields.find(t=>t.field_id === '4513015') ? pData.fields.find(t=>t.field_id === '4513015').val : '';
+                whatClassesMightUseThis = pData.fields.find(t=>t.field_id === 4513015) ? pData.fields.find(t=>t.field_id === 4513015).val : '';
                 break;
             case 'Journal Subscription':
-                whatClassesMightUseThis = pData.fields.find(t=>t.field_id === '4512970') ? pData.fields.find(t=>t.field_id === '4512970').val : '';
+                whatClassesMightUseThis = pData.fields.find(t=>t.field_id === 4512970) ? pData.fields.find(t=>t.field_id === 4512970).val : '';
                 break;
             default:
                 whatClassesMightUseThis = '';
@@ -732,31 +734,31 @@ exports.handler = (event, context, callback) => {
         let locationToPurchase;
         switch (format) {
             case 'Book':
-                locationToPurchase = pData.fields.find(t=>t.field_id === '4513065') ? pData.fields.find(t=>t.field_id === '4513065').val : '';
+                locationToPurchase = pData.fields.find(t=>t.field_id === 4513065) ? pData.fields.find(t=>t.field_id === 4513065).val : '';
                 break;
             case 'eBook':
-                locationToPurchase = pData.fields.find(t=>t.field_id === '4513044') ? pData.fields.find(t=>t.field_id === '4513044').val : '';
+                locationToPurchase = pData.fields.find(t=>t.field_id === 4513044) ? pData.fields.find(t=>t.field_id === 4513044).val : '';
                 break;
             case 'Database':
-                locationToPurchase = pData.fields.find(t=>t.field_id === '4513029') ? pData.fields.find(t=>t.field_id === '4513029').val : '';
+                locationToPurchase = pData.fields.find(t=>t.field_id === 4513029) ? pData.fields.find(t=>t.field_id === 4513029).val : '';
                 break;
             case 'Dataset':
-                locationToPurchase = pData.fields.find(t=>t.field_id === '4513016') ? pData.fields.find(t=>t.field_id === '4513016').val : '';
+                locationToPurchase = pData.fields.find(t=>t.field_id === 4513016) ? pData.fields.find(t=>t.field_id === 4513016).val : '';
                 break;
-            case 'Journal':
-                locationToPurchase = pData.fields.find(t=>t.field_id === '4512971') ? pData.fields.find(t=>t.field_id === '4512971').val : '';
+            case 'Journal Subscription':
+                locationToPurchase = pData.fields.find(t=>t.field_id === 4512971) ? pData.fields.find(t=>t.field_id === 4512971).val : '';
                 break;
             case 'Music Recording':
-                locationToPurchase = pData.fields.find(t=>t.field_id === '4512959') ? pData.fields.find(t=>t.field_id === '4512959').val : '';
+                locationToPurchase = pData.fields.find(t=>t.field_id === 4512959) ? pData.fields.find(t=>t.field_id === 4512959).val : '';
                 break;
             case 'Music Score':
-                locationToPurchase = pData.fields.find(t=>t.field_id === '4512903') ? pData.fields.find(t=>t.field_id === '4512903').val : '';
+                locationToPurchase = pData.fields.find(t=>t.field_id === 4512903) ? pData.fields.find(t=>t.field_id === 4512903).val : '';
                 break;
             case 'Video':
-                locationToPurchase = pData.fields.find(t=>t.field_id === '4512872') ? pData.fields.find(t=>t.field_id === '4512872').val : '';
+                locationToPurchase = pData.fields.find(t=>t.field_id === 4512872) ? pData.fields.find(t=>t.field_id === 4512872).val : '';
                 break;
             case 'Other':
-                locationToPurchase = pData.fields.find(t=>t.field_id === '4512782') ? pData.fields.find(t=>t.field_id === '4512782').val : '';
+                locationToPurchase = pData.fields.find(t=>t.field_id === 4512782) ? pData.fields.find(t=>t.field_id === 4512782).val : '';
                 break;
             default:
                 locationToPurchase = '';
@@ -768,19 +770,19 @@ exports.handler = (event, context, callback) => {
         let price;
         switch (format) {
             case 'Database':
-                price = pData.fields.find(t=>t.field_id === '4513030') ? pData.fields.find(t=>t.field_id === '4513030').val : '';
+                price = pData.fields.find(t=>t.field_id === 4513030) ? pData.fields.find(t=>t.field_id === 4513030).val : '';
                 break;
             case 'Dataset':
-                price = pData.fields.find(t=>t.field_id === '4513017') ? pData.fields.find(t=>t.field_id === '4513017').val : '';
+                price = pData.fields.find(t=>t.field_id === 4513017) ? pData.fields.find(t=>t.field_id === 4513017).val : '';
                 break;
-            case 'Journal':
-                price = pData.fields.find(t=>t.field_id === '4512973') ? pData.fields.find(t=>t.field_id === '4512973').val : '';
+            case 'Journal Subscription':
+                price = pData.fields.find(t=>t.field_id === 4512973) ? pData.fields.find(t=>t.field_id === 4512973).val : '';
                 break;
             case 'Video':
-                price = pData.fields.find(t=>t.field_id === '4512873') ? pData.fields.find(t=>t.field_id === '4512873').val : '';
+                price = pData.fields.find(t=>t.field_id === 4512873) ? pData.fields.find(t=>t.field_id === 4512873).val : '';
                 break;
             case 'Other':
-                price = pData.fields.find(t=>t.field_id === '4512789') ? pData.fields.find(t=>t.field_id === '4512789').val : '';
+                price = pData.fields.find(t=>t.field_id === 4512789) ? pData.fields.find(t=>t.field_id === 4512789).val : '';
                 break;
             default:
                 price = '';
@@ -792,31 +794,31 @@ exports.handler = (event, context, callback) => {
         let additionalComments;
         switch (format) {
             case 'Book':
-                additionalComments = pData.fields.find(t=>t.field_id === '4513066') ? pData.fields.find(t=>t.field_id === '4513066').val : '';
+                additionalComments = pData.fields.find(t=>t.field_id === 4513066) ? pData.fields.find(t=>t.field_id === 4513066).val : '';
                 break;
             case 'eBook':
-                additionalComments = pData.fields.find(t=>t.field_id === '4513045') ? pData.fields.find(t=>t.field_id === '4513045').val : '';
+                additionalComments = pData.fields.find(t=>t.field_id === 4513045) ? pData.fields.find(t=>t.field_id === 4513045).val : '';
                 break;
             case 'Database':
-                additionalComments = pData.fields.find(t=>t.field_id === '4513031') ? pData.fields.find(t=>t.field_id === '4513031').val : '';
+                additionalComments = pData.fields.find(t=>t.field_id === 4513031) ? pData.fields.find(t=>t.field_id === 4513031).val : '';
                 break;
             case 'Dataset':
-                additionalComments = pData.fields.find(t=>t.field_id === '4513019') ? pData.fields.find(t=>t.field_id === '4513019').val : '';
+                additionalComments = pData.fields.find(t=>t.field_id === 4513019) ? pData.fields.find(t=>t.field_id === 4513019).val : '';
                 break;
             case 'Dissertation or Thesis':
-                additionalComments = pData.fields.find(t=>t.field_id === '4513005') ? pData.fields.find(t=>t.field_id === '4513005').val : '';
+                additionalComments = pData.fields.find(t=>t.field_id === 4513005) ? pData.fields.find(t=>t.field_id === 4513005).val : '';
                 break;
-            case 'Journal':
-                additionalComments = pData.fields.find(t=>t.field_id === '4512974') ? pData.fields.find(t=>t.field_id === '4512974').val : '';
+            case 'Journal Subscription':
+                additionalComments = pData.fields.find(t=>t.field_id === 4512974) ? pData.fields.find(t=>t.field_id === 4512974).val : '';
                 break;
             case 'Music Recording':
-                additionalComments = pData.fields.find(t=>t.field_id === '4512960') ? pData.fields.find(t=>t.field_id === '4512960').val : '';
+                additionalComments = pData.fields.find(t=>t.field_id === 4512960) ? pData.fields.find(t=>t.field_id === 4512960).val : '';
                 break;
             case 'Music Score':
-                additionalComments = pData.fields.find(t=>t.field_id === '4512904') ? pData.fields.find(t=>t.field_id === '4512904').val : '';
+                additionalComments = pData.fields.find(t=>t.field_id === 4512904) ? pData.fields.find(t=>t.field_id === 4512904).val : '';
                 break;
             case 'Video':
-                additionalComments = pData.fields.find(t=>t.field_id === '4512876') ? pData.fields.find(t=>t.field_id === '4512876').val : '';
+                additionalComments = pData.fields.find(t=>t.field_id === 4512876) ? pData.fields.find(t=>t.field_id === 4512876).val : '';
                 break;
             default:
                 additionalComments = '';
@@ -828,7 +830,7 @@ exports.handler = (event, context, callback) => {
         let descriptionComments;
         switch (format) {
             case 'Other':
-                descriptionComments = pData.fields.find(t=>t.field_id === '4512798') ? pData.fields.find(t=>t.field_id === '4512798').val : '';
+                descriptionComments = pData.fields.find(t=>t.field_id === 4512798) ? pData.fields.find(t=>t.field_id === 4512798).val : '';
                 break;
             default:
                 descriptionComments = '';
@@ -903,14 +905,16 @@ exports.handler = (event, context, callback) => {
         }
         let reqText = "<br>\n<br>\n<br>\n<strong>req #: </strong>" + reqId;
         libraryOptions.html = adminMsg + biblioInfo + requestorInfo + courseInfo + reqText;
-        libraryOptions.text = stripHtml(adminMsg + biblioInfo + requestorInfo + courseInfo + reqText);
+        console.log(libraryOptions);
+        //libraryOptions.text = stripHtml(adminMsg + biblioInfo + requestorInfo + courseInfo + reqText);
     
         // Prepare email confirmation content for patron
         patronOptions.subject = (forCourseReserves && (forCourseReserves === "Yes")) ? 'Reserve ' : '';
         patronOptions.subject += 'Purchase Recommendation';
-        patronOptions.to = frmData.sect_requestor_information.fields.fld_email_address.value;
+        patronOptions.to = emailAddress;
         patronOptions.html = patronMsg + biblioInfo + requestorInfo + courseInfo + reqText;
-        patronOptions.text = stripHtml(patronMsg + biblioInfo + requestorInfo + courseInfo + reqText);
+        console.log(patronOptions);
+        //patronOptions.text = stripHtml(patronMsg + biblioInfo + requestorInfo + courseInfo + reqText);
     
         try {
             return postEmailAndData(reqId, libraryOptions, patronOptions, data);
@@ -921,6 +925,6 @@ exports.handler = (event, context, callback) => {
         }
     
     } else {
-        // @TODO Error occurred when posting form submission to AWS
+        console.log(`Warning: ${formName} form submission without any fields in it.`);
     }
 };

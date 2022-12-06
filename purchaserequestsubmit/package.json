@@ -19,7 +19,7 @@
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
   "dependencies": {
-    "node-fetch": "^3.2.10",
-    "string-strip-html": "^11.6.20"
+    "node-fetch": "^2.6.7",
+    "string-strip-html": "^8.3.0"
   }
 }
