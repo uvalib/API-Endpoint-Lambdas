@@ -217,7 +217,7 @@ exports.handler = (event, context, callback) => {
     const pData = JSON.parse(event.body);
 
     // Verify that their field defined for the form before attempting to do anything
-    if (pData.fields.length && (postData.fields.length > 0)) {
+    if (pData.fields.length && (pData.fields.length > 0)) {
         // @TODO Modify this section of the Lambda function to reflect that of the appropriate LibWizard form JSON object structure
         // ***
         let adminMsg = subjPre = courseInfo = courseTerm = biblioInfo = requestorInfo = '';
