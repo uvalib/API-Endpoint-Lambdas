@@ -170,7 +170,7 @@ exports.handler = (event, context, callback) => {
     }
     // Post the email objects to our server for sending and post the form data to LibInsight.
     const postEmailAndData = function(reqId, requestEmailOptions, confirmEmailOptions, formData) {
-        queryString = paramsString(requestEmailOptions);
+        let queryString = paramsString(requestEmailOptions);
         nodeFetch(emailUrl, { method: 'POST', body: queryString, headers: headerObj })
         .then(res => res.text())
         .then(body => {
@@ -220,7 +220,12 @@ exports.handler = (event, context, callback) => {
     if (pData.fields.length && (pData.fields.length > 0)) {
         // @TODO Modify this section of the Lambda function to reflect that of the appropriate LibWizard form JSON object structure
         // ***
-        let adminMsg = subjPre = courseInfo = courseTerm = biblioInfo = requestorInfo = '';
+        let adminMsg = '';
+        let subjPre = '';
+        let courseInfo = '';
+        let courseTerm = '';
+        let biblioInfo = '';
+        let requestorInfo = '';
         let patronMsg = "<p>A copy of your purchase recommendation is shown below.</p><br>\n\n";
         let reqId = Object.hasOwn(pData,'timeStamp') ? pData.timeStamp : '';
         let data = { 'field_642': reqId, 'ts_start': now };
@@ -231,7 +236,9 @@ exports.handler = (event, context, callback) => {
         // Fund code value depends on if the item is for reserve and what format the item is.
         // Library location depends on if the item is for reserve and which library location was specified.
         // Since fund code and library location are for admin purposes, they will not get saved to LibInsight data.
-        let msg = fundCode = libraryLocation = '';
+        let msg = '';
+        let fundCode = '';
+        let libraryLocation = '';
         let format = pData.fields.find(t=>t.field_id === 4512446) ? pData.fields.find(t=>t.field_id === 4512446).val : 'Unknown';
         let forCourseReserves = pData.fields.find(t=>t.field_id === 4512610) ? pData.fields.find(t=>t.field_id === 4512610).val : '';
         forCourseReserves = (forCourseReserves === 'Yes') ? forCourseReserves : 'No' ;
@@ -906,7 +913,7 @@ exports.handler = (event, context, callback) => {
         let reqText = "<br>\n<br>\n<br>\n<strong>req #: </strong>" + reqId;
         libraryOptions.html = adminMsg + biblioInfo + requestorInfo + courseInfo + reqText;
         console.log(libraryOptions);
-        //libraryOptions.text = stripHtml(adminMsg + biblioInfo + requestorInfo + courseInfo + reqText);
+        libraryOptions.text = stripHtml(adminMsg + biblioInfo + requestorInfo + courseInfo + reqText);
     
         // Prepare email confirmation content for patron
         patronOptions.subject = (forCourseReserves && (forCourseReserves === "Yes")) ? 'Reserve ' : '';
@@ -914,7 +921,7 @@ exports.handler = (event, context, callback) => {
         patronOptions.to = emailAddress;
         patronOptions.html = patronMsg + biblioInfo + requestorInfo + courseInfo + reqText;
         console.log(patronOptions);
-        //patronOptions.text = stripHtml(patronMsg + biblioInfo + requestorInfo + courseInfo + reqText);
+        patronOptions.text = stripHtml(patronMsg + biblioInfo + requestorInfo + courseInfo + reqText);
     
         try {
             return postEmailAndData(reqId, libraryOptions, patronOptions, data);
