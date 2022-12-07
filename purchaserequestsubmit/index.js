@@ -1,11 +1,14 @@
 exports.handler = (event, context, callback) => {
+
     const formName = 'Purchase Recommendation';
     const nodeFetch = require('node-fetch');
     const stripHtml = require('string-strip-html');
     const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
+
     // Environment variables configured for use with sending emails and saving data to LibInsight for forms.
     const emailSecret = process.env.email_secret;
     const apiUrl = process.env.purchase_rec_api_url; 
+    
     // Initialize email info and objects.
     const emailUrl = 'https://api.library.virginia.edu/mailer/mailer.js';
     let libraryOptions = { secret: emailSecret, from: '"UVA Library" <no-reply-library@Virginia.EDU>', replyTo: '',
@@ -17,6 +20,7 @@ exports.handler = (event, context, callback) => {
         attach_type1: 'attach', sourceFile1: '', destFile1: ''
     };
     const now = new Date();
+
     // Identify the appropriate liaison email address to copy for a request depending on the department specified on the form.
     const getSubjectLiaisonEmail = function(dept) {
         let emailAddr;
@@ -164,10 +168,12 @@ exports.handler = (event, context, callback) => {
         }
         return emailAddr;
     };
+
     // Format parameter data for passing on a URL.
     const paramsString = function(obj) {
         return Object.keys(obj).map(key => key + '=' + encodeURIComponent(obj[key])).join('&');
     };
+
     // Post the email objects to our server for sending and post the form data to LibInsight.
     const postEmailAndData = function(reqId, requestEmailOptions, confirmEmailOptions, formData) {
         let queryString = paramsString(requestEmailOptions);
@@ -214,7 +220,7 @@ exports.handler = (event, context, callback) => {
     };
     
     // Make sure the form submission POST data is a JSON object.
-    const pData = JSON.parse(event.body);
+    const pData = event.body;
 
     // Verify that their field defined for the form before attempting to do anything
     if (pData.fields.length && (pData.fields.length > 0)) {
