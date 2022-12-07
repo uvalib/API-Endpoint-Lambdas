@@ -4,8 +4,8 @@ exports.handler = (event, context, callback) => {
     const stripHtml = require('string-strip-html');
     const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
     // Environment variables configured for use with sending emails and saving data to LibInsight for forms.
-    const emailSecret = process.env.emailSecret;
-    const apiUrl = process.env.libinsightPurchaseRecApiUrl; 
+    const emailSecret = process.env.email_secret;
+    const apiUrl = process.env.purchase_rec_api_url; 
     // Initialize email info and objects.
     const emailUrl = 'https://api.library.virginia.edu/mailer/mailer.js';
     let libraryOptions = { secret: emailSecret, from: '"UVA Library" <no-reply-library@Virginia.EDU>', replyTo: '',
