@@ -163,11 +163,11 @@ exports.handler = (event, context, callback) => {
                 emailAddr = 'purchase-requests@virginia.libanswers.com';
         }
         return emailAddr;
-    }
+    };
     // Format parameter data for passing on a URL.
     const paramsString = function(obj) {
         return Object.keys(obj).map(key => key + '=' + encodeURIComponent(obj[key])).join('&');
-    }
+    };
     // Post the email objects to our server for sending and post the form data to LibInsight.
     const postEmailAndData = function(reqId, requestEmailOptions, confirmEmailOptions, formData) {
         let queryString = paramsString(requestEmailOptions);
@@ -211,7 +211,7 @@ exports.handler = (event, context, callback) => {
             console.log(error);
             return error;
         });
-    }
+    };
     
     // Make sure the form submission POST data is a JSON object.
     const pData = JSON.parse(event.body);
