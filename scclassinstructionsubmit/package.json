@@ -1,0 +1,24 @@
+{
+  "name": "scclassinstructionsubmit",
+  "version": "1.0.0",
+  "description": "lambda function for processing a LibWizard Special Collections Class Visit and Instruction form submission",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "libwizard",
+    "libinsight",
+    "springshare",
+    "lambda",
+    "api gateway",
+    "aws"
+  ],
+  "author": "jlk4p@virginia.edu",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}

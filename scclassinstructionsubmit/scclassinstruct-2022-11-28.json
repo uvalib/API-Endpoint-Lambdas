@@ -1,0 +1,188 @@
+{
+  "description": "https://www.library.virginia.edu/services/class-visits-and-instruction/",
+  "editors": [],
+  "fields": [
+    {
+      "field_id": 4523504,
+      "label": "<p>Name</p>",
+      "val": "Jack Kelly"
+    },
+    {
+      "field_id": 4523505,
+      "label": "<p>Email</p>",
+      "val": "jlk4p@virginia.edu"
+    },
+    {
+      "field_id": 4523507,
+      "label": "<p>Phone number</p>",
+      "val": "(434)924-7119"
+    },
+    {
+      "field_id": 4523508,
+      "label": "<p>Department</p>",
+      "val": "Library"
+    },
+    {
+      "field_id": 4523511,
+      "label": "<p>University affiliation (choose all that apply)</p>",
+      "val": "Graduate Student|Staff|Unaffiliated"
+    },
+    {
+      "field_id": 4523515,
+      "label": "Term",
+      "val": "Fall"
+    },
+    {
+      "field_id": 4523517,
+      "label": "Course, e.g. MDST 3840",
+      "val": "test 1234"
+    },
+    {
+      "field_id": 4523518,
+      "label": "Course section, e.g. 100",
+      "val": "100"
+    },
+    {
+      "field_id": 4523519,
+      "label": "<p>Course title</p>",
+      "val": "Just testing the form"
+    },
+    {
+      "field_id": 4523522,
+      "label": "<p>Course syllabus</p>",
+      "val": [
+        {}
+      ]
+    },
+    {
+      "field_id": 4530988,
+      "label": "<p>List of materials you want to include in the session</p>",
+      "val": [
+        {}
+      ]
+    },
+    {
+      "field_id": 4530989,
+      "label": "<p>Additional information about your course assignment(s)</p>",
+      "val": ""
+    },
+    {
+      "field_id": 4523525,
+      "label": "<p>What kind of instruction would you like? (check all that apply)</p>",
+      "val": "Course-related instruction|Introduction to Special Collections and primary source research|Collection highlights"
+    },
+    {
+      "field_id": 4523614,
+      "label": "<p>For course-related instruction</p>",
+      "val": ""
+    },
+    {
+      "field_id": 4523526,
+      "label": "<p>Number of participants</p>",
+      "val": "20"
+    },
+    {
+      "field_id": 4523527,
+      "label": "<p>Level of participants (check all that apply)</p>",
+      "val": "Upper level undergraduate|Graduate"
+    },
+    {
+      "field_id": 4523566,
+      "label": "<p>Explanation of instructional needs</p><p><em>Please include topic and/or assignment with due date if applicable.&nbsp;</em></p>",
+      "val": "topic or assignment information goes here"
+    },
+    {
+      "field_id": 4523567,
+      "label": "<p>Goals for session</p>",
+      "val": "goals for the session go here"
+    },
+    {
+      "field_id": 4523568,
+      "label": "<p>Please check all that apply:&nbsp;</p>",
+      "val": "I want to cover specific materials.|I will need audiovisual support for my class."
+    },
+    {
+      "field_id": 4523585,
+      "label": "<p>Length (minutes)</p>",
+      "val": 60
+    },
+    {
+      "field_id": 4523589,
+      "label": "<p>1st choice</p>",
+      "val": "Nov 28, 2022 12:00 PM"
+    },
+    {
+      "field_id": 4523590,
+      "label": "<p>2nd choice</p>",
+      "val": "Nov 28, 2022 02:00 PM"
+    },
+    {
+      "field_id": 4523591,
+      "label": "<p>3rd choice</p>",
+      "val": ""
+    },
+    {
+      "field_id": 4523595,
+      "label": "<p>Do you have a second session request?</p>",
+      "val": "Yes, please show me more fields."
+    },
+    {
+      "field_id": 4523598,
+      "label": "<p>Session 2 length (minutes)</p>",
+      "val": 60
+    },
+    {
+      "field_id": 4523599,
+      "label": "<p>Session 2: 1st choice</p>",
+      "val": "Nov 29, 2022 12:00 PM"
+    },
+    {
+      "field_id": 4523600,
+      "label": "<p>Session 2: 2nd choice</p>",
+      "val": "Nov 29, 2022 02:00 PM"
+    },
+    {
+      "field_id": 4523601,
+      "label": "<p>Session 2: 3rd choice</p>",
+      "val": ""
+    },
+    {
+      "field_id": 4523602,
+      "label": "<p>Do you have a third session request?</p>",
+      "val": ""
+    },
+    {
+      "field_id": 4523604,
+      "label": "<p>Session 3 length (minutes)</p>",
+      "val": ""
+    },
+    {
+      "field_id": 4523605,
+      "label": "<p>Session 3: 1st choice</p>",
+      "val": ""
+    },
+    {
+      "field_id": 4523606,
+      "label": "<p>Session 3: 2nd choice</p>",
+      "val": ""
+    },
+    {
+      "field_id": 4523607,
+      "label": "<p>Session 3: 3rd choice</p>",
+      "val": ""
+    },
+    {
+      "field_id": 4523609,
+      "label": "<p>Comments</p>",
+      "val": "This is just a test. Please ignore this."
+    }
+  ],
+  "formId": 135577,
+  "iid": 2830,
+  "instance_id": 11948638,
+  "name": "DEV - Special Collections Class Visits and Instruction",
+  "ownerId": 122686,
+  "timeStamp": "2022-11-11T19:22:25.000Z",
+  "updated": null,
+  "viewers": []
+}
