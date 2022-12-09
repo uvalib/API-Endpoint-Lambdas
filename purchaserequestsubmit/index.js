@@ -220,7 +220,7 @@ exports.handler = (event, context, callback) => {
     };
     
     // Make sure the form submission POST data is a JSON object.
-    const pData = event.body;
+    const pData = JSON.parse(event.body);
 
     // Verify that their field defined for the form before attempting to do anything
     if (pData.fields.length && (pData.fields.length > 0)) {
@@ -918,7 +918,6 @@ exports.handler = (event, context, callback) => {
         }
         let reqText = "<br>\n<br>\n<br>\n<strong>req #: </strong>" + reqId;
         libraryOptions.html = adminMsg + biblioInfo + requestorInfo + courseInfo + reqText;
-        console.log(libraryOptions);
         libraryOptions.text = stripHtml(adminMsg + biblioInfo + requestorInfo + courseInfo + reqText);
     
         // Prepare email confirmation content for patron
@@ -926,7 +925,6 @@ exports.handler = (event, context, callback) => {
         patronOptions.subject += 'Purchase Recommendation';
         patronOptions.to = emailAddress;
         patronOptions.html = patronMsg + biblioInfo + requestorInfo + courseInfo + reqText;
-        console.log(patronOptions);
         patronOptions.text = stripHtml(patronMsg + biblioInfo + requestorInfo + courseInfo + reqText);
     
         try {
