@@ -220,7 +220,7 @@ exports.handler = (event, context, callback) => {
     };
     
     // Make sure the form submission POST data is a JSON object.
-    const pData = JSON.parse(event.body);
+    const pData = event;
 
     // Verify that their field defined for the form before attempting to do anything
     if (pData.fields.length && (pData.fields.length > 0)) {
