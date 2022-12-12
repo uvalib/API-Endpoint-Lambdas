@@ -844,7 +844,7 @@ exports.handler = (event, context, callback) => {
     patronOptions.text = stripHtml(msg + biblioInfo + requestorInfo + otherPerson + reqText);
 
     try {
-        return postEmailAndData(reqId, libraryOptions, patronOptions, apiUrl, data);
+        return postEmailAndData(reqId, libraryOptions, patronOptions, data);
     }
     catch (error) {
         console.log(`error: ${JSON.stringify(error)}`);
