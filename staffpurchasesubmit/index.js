@@ -811,24 +811,23 @@ exports.handler = (event, context, callback) => {
 
     // Prepare email content for Library staff
     libraryOptions.subject = subjPrefix + 'Staff Purchase Request';
-    libraryOptions.from = '"' + frmData.sect_requestor_information.fields.fld_name.value + '" <' + frmData.sect_requestor_information.fields.fld_email_address.value + '>';
-    libraryOptions.replyTo = frmData.sect_requestor_information.fields.fld_email_address.value;
+    libraryOptions.from = '"' + yourName + '" <' + yourEmailAddress + '>';
+    libraryOptions.replyTo = yourEmailAddress;
     // Routing varies based on format
-    if (frmData.sect_bibliographic_information.fields.fld_format.value === 'Video') {
+    if (format === 'Video') {
         libraryOptions.to = 'Libselect_video@virginia.edu';
-    } else if (frmData.sect_bibliographic_information.fields.fld_format.value === 'Music Recording') {
+    } else if (format === 'Music Recording') {
         libraryOptions.to = 'lb-mu-recordings@virginia.edu';
-        if (frmData.fld_is_this_a_rush_request_.value === 'Yes') { // include Acquisitions for rush request
+        if (isRushRequest === 'Yes') { // include Acquisitions for rush request
             libraryOptions.to += ',lib-orders@virginia.edu';
         }
-    } else if ((frmData.sect_bibliographic_information.fields.fld_format.value === 'Book') ||
-            (frmData.sect_bibliographic_information.fields.fld_format.value === 'Dissertation or Thesis')) {
+    } else if ((format === 'Book') || (format === 'Dissertation or Thesis')) {
         libraryOptions.to = 'lib-collections@virginia.edu,lib-orders@virginia.edu';
     } else {
         // All other formats (Database/Dataset, Journal Subscription, Music Score, Other) go to LibAnswers
         libraryOptions.to = 'purchase-requests@virginia.libanswers.com';
         // Music scores also go to those specialists
-        if (frmData.sect_bibliographic_information.fields.fld_format.value === 'Music Score') {
+        if (format === 'Music Score') {
             libraryOptions.to += ',lb-mu-scores@virginia.edu';
         }
     }
@@ -839,7 +838,7 @@ exports.handler = (event, context, callback) => {
 
     // Prepare email confirmation content for staff
     patronOptions.subject = subjPrefix + 'Staff Purchase Request';
-    patronOptions.to = frmData.sect_requestor_information.fields.fld_email_address.value;
+    patronOptions.to = yourEmailAddress;
     patronOptions.html = msg + biblioInfo + requestorInfo + otherPerson + reqText;
     patronOptions.text = stripHtml(msg + biblioInfo + requestorInfo + otherPerson + reqText);
 
