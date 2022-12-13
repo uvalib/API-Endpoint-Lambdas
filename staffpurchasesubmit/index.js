@@ -696,7 +696,7 @@ exports.handler = (event, context, callback) => {
     let howImportantIsResource;
     switch (format) {
         case 'Journal Subscription':
-            howImportantIsResource = pData.fields.find(t=>t.field_id === 4530394) ? pData.fields.find(t=>t.field_id === 4530394).val : '';
+            howImportantIsResource = pData.fields.find(t=>t.field_id === 4530392) ? pData.fields.find(t=>t.field_id === 4530392).val : '';
             break;
         default:
             howImportantIsResource = '';
