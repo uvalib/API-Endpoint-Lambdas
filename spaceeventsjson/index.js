@@ -78,7 +78,7 @@ exports.handler = (event, context, callback) => {
         .then(function() {
             // oAuth for LibCal API
             request({
-                url: 'https://api2.libcal.com/1.1/oauth/token',
+                url: 'https://cal.lib.virginia.edu/1.1/oauth/token',
                 method: 'POST',
                 form: {
                     'client_id': process.env.client_id,
@@ -91,7 +91,7 @@ exports.handler = (event, context, callback) => {
                 let json = JSON.parse(res.body);
                 let access_token = json.access_token;
                 request({
-                    url: 'https://api2.libcal.com/1.1/space/nickname/' + spaceCategoryIDs.join(','),
+                    url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(','),
                     method: 'GET',
                     auth: {
                         'bearer': access_token

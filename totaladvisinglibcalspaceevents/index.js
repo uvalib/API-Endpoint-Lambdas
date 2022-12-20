@@ -6,7 +6,7 @@ exports.handler = (event, context, callback) => {
         space_ics_files = new Array();
     // oAuth for LibCal API
     request({
-        url: 'https://api2.libcal.com/1.1/oauth/token',
+        url: 'https://cal.lib.virginia.edu/1.1/oauth/token',
         method: 'POST',
         form: {
             'client_id': process.env.client_id,
@@ -21,7 +21,7 @@ exports.handler = (event, context, callback) => {
         // Make Spaces API call for desired location Spaces
         // Space category identifiers are configured in the mapping template for each space location. 
         request({
-            url: 'https://api2.libcal.com/1.1/space/nickname/' + event['query']['spaceCategories'],
+            url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + event['query']['spaceCategories'],
             method: 'GET',
             auth: {
                 'bearer': access_token
