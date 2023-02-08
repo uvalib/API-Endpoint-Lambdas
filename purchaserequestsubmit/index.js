@@ -357,7 +357,7 @@ exports.handler = (event, context, callback) => {
                     courseInfo += "<strong>Other LMS:</strong> " + otherLMS + "<br>\n";
                     data['field_1788'] = otherLMS;
                 }
-            }*/
+            }
             // @TODO Add fields to LibInsight to support the preferred audio language and subtitle fields if specified.
             // Asking if submitting the request on behalf of the instructor is no longer supported due to privacy/security reasons.
             // data['field_1820'] = 'indicating if requesting on behalf of the instructor would go here if still allowed/captured';
