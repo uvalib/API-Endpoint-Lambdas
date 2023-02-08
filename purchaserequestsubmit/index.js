@@ -346,10 +346,20 @@ exports.handler = (event, context, callback) => {
                 courseInfo += "<strong>Enrollment:</strong> " + courseEnrollment + "<br>\n";
                 data['field_654'] = courseEnrollment;
             }
-            // Course LMS and Other option are not currently on the form and not required in LibInsight
-            // data['field_1787'] = 'course LMS value goes here';
-            // data['field_1788'] = 'if LMS is Other than other input value goes here';
-            // Asking of submitting the request on behalf of the instructor is no longer supported due to privacy/security reasons.
+            let courseLMS = pData.fields.find(t=>t.field_id === 4600292) ? pData.fields.find(t=>t.field_id === 4600292).val : '';
+            if (courseLMS !== '') {
+                courseInfo += "<strong>Learning Management System:</strong> " + courseLMS + "<br>\n";
+                data['field_1787'] = courseLMS;
+            }
+            if (courseLMS == 'Other...') {
+                let otherLMS = pData.fields.find(t=>t.field_id === 4600299) ? pData.fields.find(t=>t.field_id === 4600299).val : '';
+                if (otherLMS !== '') {
+                    courseInfo += "<strong>Other LMS:</strong> " + otherLMS + "<br>\n";
+                    data['field_1788'] = otherLMS;
+                }
+            }*/
+            // @TODO Add fields to LibInsight to support the preferred audio language and subtitle fields if specified.
+            // Asking if submitting the request on behalf of the instructor is no longer supported due to privacy/security reasons.
             // data['field_1820'] = 'indicating if requesting on behalf of the instructor would go here if still allowed/captured';
             // data['field_1821'] = 'course instructor name would go here if still allowed/captured';
             courseInfo += "</p><br>\n";
@@ -688,6 +698,30 @@ exports.handler = (event, context, callback) => {
         if (editionVersion !== '') {
             biblioInfo += "<strong>Edition/Version:</strong> " + editionVersion + "<br>\n";
             data['field_676'] = editionVersion;
+        }
+        let preferredAudioLanguage;
+        switch (format) {
+            case 'Video':
+                preferredAudioLanguage = pData.fields.find(t=>t.field_id === 4600329) ? pData.fields.find(t=>t.field_id === 4600329).val : '';
+                break;
+            default:
+                preferredAudioLanguage = '';
+        }
+        if (preferredAudioLanguage !== '') {
+            biblioInfo += "<strong>Preferred audio language:</strong> " + preferredAudioLanguage + "<br>\n";
+            data['field_1882'] = preferredAudioLanguage;
+        }
+        let includeSubtitles;
+        switch (format) {
+            case 'Video':
+                includeSubtitles = pData.fields.find(t=>t.field_id === 4600330) ? pData.fields.find(t=>t.field_id === 4600330).val : '';
+                break;
+            default:
+                includeSubtitles = '';
+        }
+        if (includeSubtitles !== '') {
+            biblioInfo += "<strong>Include subtitles?:</strong> " + includeSubtitles + "<br>\n";
+            data['field_1883'] = includeSubtitles;
         }
         let versionInfo;
         switch (format) {
