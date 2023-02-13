@@ -358,7 +358,6 @@ exports.handler = (event, context, callback) => {
                     data['field_1788'] = otherLMS;
                 }
             }
-            // @TODO Add fields to LibInsight to support the preferred audio language and subtitle fields if specified.
             // Asking if submitting the request on behalf of the instructor is no longer supported due to privacy/security reasons.
             // data['field_1820'] = 'indicating if requesting on behalf of the instructor would go here if still allowed/captured';
             // data['field_1821'] = 'course instructor name would go here if still allowed/captured';
@@ -722,6 +721,18 @@ exports.handler = (event, context, callback) => {
         if (includeSubtitles !== '') {
             biblioInfo += "<strong>Include subtitles?:</strong> " + includeSubtitles + "<br>\n";
             data['field_1883'] = includeSubtitles;
+        }
+        let subtitlesLanguage;
+        switch (format) {
+            case 'Video':
+                subtitlesLanguage = pData.fields.find(t=>t.field_id === 4605238) ? pData.fields.find(t=>t.field_id === 4605238).val : '';
+                break;
+            default:
+                subtitlesLanguage = '';
+        }
+        if (includeSubtitles === 'Yes') {
+            biblioInfo += "<strong>Subtitles language:</strong> " + subtitlesLanguage + "<br>\n";
+            data['field_1884'] = subtitlesLanguage;
         }
         let versionInfo;
         switch (format) {
