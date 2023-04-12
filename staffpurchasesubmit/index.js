@@ -817,7 +817,7 @@ exports.handler = (event, context, callback) => {
     if (format === 'Video') {
         libraryOptions.to = 'Libselect_video@virginia.edu';
     } else if (format === 'Music Recording') {
-        libraryOptions.to = 'lb-mu-recordings@virginia.edu';
+        libraryOptions.to = 'lb-mu-recordings@virginia.edu,purchase-requests@virginia.libanswers.com';
         if (isRushRequest === 'Yes') { // include Acquisitions for rush request
             libraryOptions.to += ',lib-orders@virginia.edu';
         }
