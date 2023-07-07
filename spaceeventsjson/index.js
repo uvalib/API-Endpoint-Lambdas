@@ -14,7 +14,9 @@ exports.handler = (event, context, callback) => {
 
     // LibCal Space category identifiers are needed to retrieve all of the space events.
     const spaceCategoryIDs = ['2181,8435', // brown sel
+                        '2198,2196', // rmc dml video studio and audio studio
                         '2177,11625,2197', // fine arts
+                        '2188', // music
                         '3780,3781' // total advising 
                     ];
                     
@@ -150,8 +152,9 @@ exports.handler = (event, context, callback) => {
                 // Save access token for Springshare API calls
                 let json = JSON.parse(res.body);
                 let access_token = json.access_token;
+                let today = getDateString(0);
                 request({
-                    url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(','),
+                    url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(',')+ '?date=' + today,
                     method: 'GET',
                     auth: {
                         'bearer': access_token
@@ -160,54 +163,110 @@ exports.handler = (event, context, callback) => {
                     if (err) return callback(err);
                     let data = JSON.parse(res.body);
                     let categories = data[0].categories;
-                    // loop through categories, aka grouped spaces
-                    for (let i = 0; i < categories.length; i++) {
-                        // loop through spaces to get events and generate event data for each
-                        for (let j = 0; j < categories[i].spaces.length; j++) {
-                            let room_num = categories[i].spaces[j].name.replace(/\D/g, '');
-                            // if the room does not have a number then replace spaces in string with hyphens
-                            room_num = (room_num != '') ? room_num : categories[i].spaces[j].name.replace(/ /g, '-');                    
-                            let location = categories[i].spaces[j].name;
-                            categories[i].spaces[j].bookings.forEach(function(evt) {
-                                let startDt = new Date(evt.start);
-                                let startDate = startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
-                                let endDt = new Date(evt.end);
-                                let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
-                                // LibCal for reserving after midnight in location that is open from mid-day overnight to next morning.
-                                if (startDate.includes("24:")) {
-                                    startDate = startDate.replace("24:", "00:");
-                                    if (endDate.includes("24:")) {
-                                        endDate = endDate.replace("24:","00:");
-                                    }
-                                    json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate, roomName: location, status: "confirmed" });
-                                // for an event that ends at midnight
-                                } else if (endDate.includes("24:00")) {
-                                    let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
-                                    json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate1, roomName: location, status: "confirmed" });
-                                // for an event that runs past midnight two events need to be created as Visix doesn't support events spanning a day
-                                } else if (endDate.includes("24:")) {
-                                    let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
-                                    let startDate2 = endDt.toLocaleDateString('en-CA') + ' 00:00';
-                                    let endDate2 = endDate.replace("24:", "00:");
-                                    json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate1, roomName: location, status: "confirmed" });
-                                    json_file.event.push({ name: evt.nickname, startTime: startDate2, endTime: endDate2, roomName: location, status: "confirmed" });
-                                } else {
-                                    json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate, roomName: location, status: "confirmed" });
-                                }
-                            });
-                            for (let k=1; k < 60; k++) {
-                                // create future dates for LibCal spaces
-                                let nextDay = new Date();
-                                nextDay.setDate(nextDay.getDate() + k);
-                                let tomorrowStart = nextDay.toLocaleDateString('en-CA') + ' 00:00';
-                                let tomorrowEnd = nextDay.toLocaleDateString('en-CA') + ' 23:59';
-                                json_file.event.push({ name: "See https://cal.lib.virginia.edu/ for this date's schedule", startTime: tomorrowStart, endTime: tomorrowEnd, roomName: location, status: "confirmed" });
+                    parseSpringshareSpaceData(categories,today,false);
+                    let firstDayOut = getDateString(1);
+                    // get the first day out
+                    request({
+                        url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(',')+ '?date=' + firstDayOut,
+                        method: 'GET',
+                        auth: {
+                            'bearer': access_token
+                        }
+                    }, function(err, res) {
+                        if (err) return callback(err);
+                        let data = JSON.parse(res.body);
+                        let categories = data[0].categories;
+                        parseSpringshareSpaceData(categories,firstDayOut,false);
+                        let secondDayOut = getDateString(2);
+                        // get the second day out
+                        request({
+                            url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(',')+ '?date=' + secondDayOut,
+                            method: 'GET',
+                            auth: {
+                                'bearer': access_token
                             }
-                        } // for j
-                    } // for i
-                    //console.log(JSON.stringify(json_file));
-                    // return JSON data for events for all EMS and LibCal spaced referenced.
-                    callback(null, json_file);
+                        }, function(err, res) {
+                            if (err) return callback(err);
+                            let data = JSON.parse(res.body);
+                            let categories = data[0].categories;
+                            parseSpringshareSpaceData(categories,secondDayOut,false);
+                            let thirdDayOut = getDateString(3);
+                            // get the third day out
+                            request({
+                                url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(',')+ '?date=' + thirdDayOut,
+                                method: 'GET',
+                                auth: {
+                                    'bearer': access_token
+                                }
+                            }, function(err, res) {
+                                if (err) return callback(err);
+                                let data = JSON.parse(res.body);
+                                let categories = data[0].categories;
+                                parseSpringshareSpaceData(categories,thirdDayOut,false);
+                                let fourthDayOut = getDateString(4);
+                                // get the fourth day out
+                                request({
+                                    url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(',')+ '?date=' + fourthDayOut,
+                                    method: 'GET',
+                                    auth: {
+                                        'bearer': access_token
+                                    }
+                                }, function(err, res) {
+                                    if (err) return callback(err);
+                                    let data = JSON.parse(res.body);
+                                    let categories = data[0].categories;
+                                    parseSpringshareSpaceData(categories,fourthDayOut,false);
+                                    let fifthDayOut = getDateString(5);
+                                    // get the fifth day out
+                                    request({
+                                        url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(',')+ '?date=' + fifthDayOut,
+                                        method: 'GET',
+                                        auth: {
+                                            'bearer': access_token
+                                        }
+                                    }, function(err, res) {
+                                        if (err) return callback(err);
+                                        let data = JSON.parse(res.body);
+                                        let categories = data[0].categories;
+                                        parseSpringshareSpaceData(categories,fifthDayOut,false);
+                                        let sixthDayOut = getDateString(6);
+                                        // get the sixth day out
+                                        request({
+                                            url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(',')+ '?date=' + sixthDayOut,
+                                            method: 'GET',
+                                            auth: {
+                                                'bearer': access_token
+                                            }
+                                        }, function(err, res) {
+                                            if (err) return callback(err);
+                                            let data = JSON.parse(res.body);
+                                            let categories = data[0].categories;
+                                            parseSpringshareSpaceData(categories,sixthDayOut,false);
+                                            let seventhDayOut = getDateString(7);
+                                            // get the seventh day out
+                                            request({
+                                                url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + spaceCategoryIDs.join(',')+ '?date=' + seventhDayOut,
+                                                method: 'GET',
+                                                auth: {
+                                                    'bearer': access_token
+                                                }
+                                            }, function(err, res) {
+                                                if (err) return callback(err);
+                                                let data = JSON.parse(res.body);
+                                                let categories = data[0].categories;
+                                                // indicate to look at the LibCal site for the next sixty days via the true attribute
+                                                parseSpringshareSpaceData(categories,seventhDayOut,true);
+    
+                                                //console.log(JSON.stringify(json_file));
+                                                // return JSON data for events for all EMS and LibCal spaced referenced.
+                                                callback(null, json_file);
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });   
                 });
             });
         });
