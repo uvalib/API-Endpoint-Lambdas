@@ -2,7 +2,7 @@ exports.handler = (event, context, callback) => {
     const axios = require('axios');
     const request = require('request');
     const json_file = { event: [] };
-    const timeOptions = { hour12: false, hour: '2-digit', minute: '2-digit' };
+    const timeOptions = { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit' };
 
     // EMS Spaces
     // ID | Room     | Description
