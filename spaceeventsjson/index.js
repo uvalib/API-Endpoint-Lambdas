@@ -10,7 +10,8 @@ exports.handler = (event, context, callback) => {
     // 16 | CLEM407  | Clemons 407
     // 17 | CLK133   | Brown 133
     // 19 | CLEM322  | Clemons 322
-    const roomIdArray = [ 6, 16, 17, 19 ];
+    // 40 | G-Lab.   | G-Lab
+    const roomIdArray = [ 6, 16, 17, 19, 40 ];
 
     // LibCal Space category identifiers are needed to retrieve all of the space events.
     const spaceCategoryIDs = ['2181,8435', // brown sel
