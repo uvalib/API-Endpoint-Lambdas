@@ -1,5 +1,6 @@
 exports.handler = (event, context, callback) => {
     const axios = require('axios');
+    const querystring = require('querystring');
     const request = require('request');
     const json_file = { event: [] };
     const timeOptions = { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit' };
@@ -20,6 +21,16 @@ exports.handler = (event, context, callback) => {
                         '2188', // music
                         '3780,3781' // total advising 
                     ];
+
+    // Exchange 365 Outlook calendars 
+    let exchangeConfig = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
+    let exchangeData = {
+        'client_id': process.env.exchange_api_client_id,
+        'client_secret': process.env.exchange_api_client_secret,
+        'scope': 'https://graph.microsoft.com/.default',
+        'grant_type': 'client_credentials'
+    };
+    let exchangeTenantId = process.env.exchange_api_tenant_id;
                     
     // get a date string for the number day out in the future from today
     function getDateString(numDayOut) {
@@ -135,6 +146,72 @@ exports.handler = (event, context, callback) => {
                     }
                 } // for j
             } // for i
+            axios.post(`https://login.microsoftonline.com/${exchangeTenantId}/oauth2/v2.0/token`, querystring.stringify(exchangeData), exchangeConfig)
+            .then((res) => {
+              let startDate = (new Date()).toISOString().split('T')[0] + 'T00:00:00';
+              let daysOut = new Date();
+              daysOut.setDate(daysOut.getDate() + 60);
+              let endDate = daysOut.toISOString().split('T')[0] + 'T23:59:59';
+              let exchangeConfig2 = {
+                headers: {
+                  "Authorization": `Bearer ${res.data.access_token}`,
+                  "Prefer": 'outlook.timezone="Eastern Standard Time"',
+                  "Content-Type": "application/json"
+                }
+              };
+              let roomData = {
+                "schedules": [
+                    "ul-harsmallrm311sco@virginia.edu","ul-brown148@virginia.edu"
+                ],
+                "startTime": {
+                    "dateTime": startDate,
+                    "timeZone": "Eastern Standard Time"
+                },
+                "endTime": {
+                    "dateTime": endDate,
+                    "timeZone": "Eastern Standard Time"
+                }
+              };
+              let msGraphUrl = 'https://graph.microsoft.com/v1.0/users/ul-harsmallrm311sco@virginia.edu/calendar/getSchedule';
+            
+              axios.post(msGraphUrl, roomData, exchangeConfig2)
+              .then((res) => {
+                let schedules = res.data.value;
+                for (let i=0; i < schedules.length; i++) {
+                  let roomName;
+                  switch (schedules[i].scheduleId) {
+                    case "ul-harsmallrm311sco@virginia.edu":
+                      roomName = "Harrison/Small 311";
+                      break;
+                    case "ul-brown148@virginia.edu":
+                      roomName = "Brown 148"; // adjust Outlook to match the roomName used for LibCal events.
+                      break;
+                    default:
+                      roomName = '';
+                      break;
+                  }
+                  for (let j=0; j < schedules[i].scheduleItems.length; j++) {
+                    if (schedules[i].scheduleItems[j].status != 'free' ) {
+                        let name;
+                        if (schedules[i].scheduleItems[j].subject && schedules[i].scheduleItems[j].subject.trim() != "") {
+                            name = schedules[i].scheduleItems[j].subject;
+                        } else {
+                            name = 'Event ('+schedules[i].scheduleItems[j].status+')';
+                        }
+                        let startDt = new Date(schedules[i].scheduleItems[j].start.dateTime);
+                        let startDate = startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
+                        let endDt = new Date(schedules[i].scheduleItems[j].end.dateTime);
+                        let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
+                        json_file.event.push({ name: name, startTime: startDate, endTime: endDate, roomName: roomName, status: "confirmed" });
+                    }  
+                  } // for j
+                } // for i
+              }).catch((err) => {
+                console.error(err);
+              });
+            }).catch((err) => {
+              console.error(err);
+            });    
         }).catch((err) => {
             console.error(err);
         })
