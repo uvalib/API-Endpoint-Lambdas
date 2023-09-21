@@ -155,7 +155,7 @@ exports.handler = (event, context, callback) => {
               let exchangeConfig2 = {
                 headers: {
                   "Authorization": `Bearer ${res.data.access_token}`,
-                  "Prefer": 'outlook.timezone="Eastern Standard Time"',
+                  "Prefer": `outlook.timezone="America/New_York"`,
                   "Content-Type": "application/json"
                 }
               };
@@ -165,11 +165,11 @@ exports.handler = (event, context, callback) => {
                 ],
                 "startTime": {
                     "dateTime": startDate,
-                    "timeZone": "Eastern Standard Time"
+                    "timeZone": "America/New_York"
                 },
                 "endTime": {
                     "dateTime": endDate,
-                    "timeZone": "Eastern Standard Time"
+                    "timeZone": "America/New_York"
                 }
               };
               let msGraphUrl = 'https://graph.microsoft.com/v1.0/users/ul-harsmallrm311sco@virginia.edu/calendar/getSchedule';
