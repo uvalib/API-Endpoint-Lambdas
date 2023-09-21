@@ -161,7 +161,7 @@ exports.handler = (event, context, callback) => {
               };
               let roomData = {
                 "schedules": [
-                    "ul-harsmallrm311sco@virginia.edu" //,"ul-brown148@virginia.edu"
+                    "ul-harsmallrm311sco@virginia.edu","ul-brown148@virginia.edu"
                 ],
                 "startTime": {
                     "dateTime": startDate,
