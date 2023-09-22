@@ -4,6 +4,7 @@ exports.handler = (event, context, callback) => {
     const request = require('request');
     const json_file = { event: [] };
     const timeOptions = { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit' };
+    const timeOptionsNoZone = { hour12: false, hour: '2-digit', minute: '2-digit' }; // for use with Outlook API
 
     // EMS Spaces
     // ID | Room     | Description
@@ -199,9 +200,9 @@ exports.handler = (event, context, callback) => {
                             name = 'Event ('+schedules[i].scheduleItems[j].status+')';
                         }
                         let startDt = new Date(schedules[i].scheduleItems[j].start.dateTime);
-                        let startDate = startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
+                        let startDate = startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptionsNoZone);
                         let endDt = new Date(schedules[i].scheduleItems[j].end.dateTime);
-                        let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
+                        let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptionsNoZone);
                         json_file.event.push({ name: name, startTime: startDate, endTime: endDate, roomName: roomName, status: "confirmed" });
                     }  
                   } // for j
