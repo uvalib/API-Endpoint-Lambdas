@@ -193,6 +193,24 @@ exports.handler = (event, context, callback) => {
                     case "ul-brown148@virginia.edu":
                       roomName = "Brown 148"; // adjust Outlook to match the roomName used for LibCal events.
                       break;
+                    case "ul-main321@virginia.edu":
+                      roomName = "Main 321";
+                      break;
+                    case "ul-main323@virginia.edu":
+                      roomName = "Main 323";
+                      break;
+                    case "ul-main421@virginia.edu":
+                      roomName = "Main 421";
+                      break;
+                    case "ul-main515@virginia.edu":
+                      roomName = "Main 515";
+                      break;
+                    case "ul-main521@virginia.edu":
+                      roomName = "Main 521";
+                      break;
+                    case "ul-main522@virginia.edu":
+                      roomName = "Main 522";
+                      break;
                     default:
                       roomName = '';
                       break;
