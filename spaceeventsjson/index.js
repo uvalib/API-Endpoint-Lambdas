@@ -13,7 +13,12 @@ exports.handler = (event, context, callback) => {
     // 17 | CLK133   | Brown 133
     // 19 | CLEM322  | Clemons 322
     // 40 | G-Lab.   | G-Lab
-    const roomIdArray = [ 6, 16, 17, 19, 40 ];
+    // 46 | MAIN_207A| Study Court
+    // 47 | MAIN_330 | Main 330
+    // 48 | MAIN_223 | Classroom 223
+    // 49 | MAIN_317 | Classroom 317
+    // 50 | MAIN_415 | Classroom 415
+    const roomIdArray = [ 6, 16, 17, 19, 40 , 46, 47, 48, 49, 50 ];
 
     // LibCal Space category identifiers are needed to retrieve all of the space events.
     const spaceCategoryIDs = ['2181,8435', // brown sel
@@ -162,7 +167,8 @@ exports.handler = (event, context, callback) => {
               };
               let roomData = {
                 "schedules": [
-                    "ul-harsmallrm311sco@virginia.edu","ul-brown148@virginia.edu"
+                    "ul-harsmallrm311sco@virginia.edu","ul-brown148@virginia.edu","ul-mainrm321@virginia.edu","ul-mainrm323@virginia.edu",
+                    "ul-mainrm421@virginia.edu","ul-mainrm515@virginia.edu","ul-mainrm521@virginia.edu","ul-mainrm522@virginia.edu"
                 ],
                 "startTime": {
                     "dateTime": startDate,

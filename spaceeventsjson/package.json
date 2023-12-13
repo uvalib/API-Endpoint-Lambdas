@@ -21,8 +21,8 @@
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
   "dependencies": {
-    "axios": "^0.27.2",
-    "request": "^2.88.0",
+    "axios": "^1.6.2",
+    "request": "^2.88.2",
     "query-string": "^8.1.0"
   },
   "devDependencies": {
