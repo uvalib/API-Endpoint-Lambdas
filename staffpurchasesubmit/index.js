@@ -2,22 +2,27 @@ exports.handler = (event, context, callback) => {
 
   const formName = 'Staff Purchase Request';
   const nodeFetch = require('node-fetch');
+  const nodeMailer = require("nodemailer");
   const stripHtml = require('string-strip-html');
   const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
 
   // Environment variables configured for use with sending emails and saving data to LibInsight for forms.
-  const emailSecret = process.env.email_secret;
   const apiUrl = process.env.staff_purch_req_api_url; 
+
+  // SMTP mail server settings
+  const smtpServer = {
+    host: 'smtp.mail.virginia.edu',
+    port: 465,
+    secure: true      
+  }
+  const mailTransporter = nodeMailer.createTransport(smtpServer);
   
   // Initialize email info and objects.
-  const emailUrl = 'https://api.library.virginia.edu/mailer/mailer.js';
-  let libraryOptions = { secret: emailSecret, from: '"UVA Library" <no-reply-library@Virginia.EDU>', replyTo: '',
-      to: '', cc: '', bcc: '', subject: '', text: '', html: '', attach_type: 'attach', sourceFile: '', destFile: '',
-      attach_type1: 'attach', sourceFile1: '', destFile1: ''
+  let libraryOptions = { from: '"UVA Library" <no-reply-library@Virginia.EDU>', replyTo: '',
+      to: '', cc: '', bcc: '', subject: '', text: '', html: ''
   };
-  let patronOptions = { secret: emailSecret, from: '"UVA Library" <no-reply-library@Virginia.EDU>', replyTo: '"UVA Library" <NO-REPLY-LIBRARY@Virginia.EDU>',
-      to: '', cc: '', bcc: '', subject: '', text: '', html: '', attach_type: 'attach', sourceFile: '', destFile: '',
-      attach_type1: 'attach', sourceFile1: '', destFile1: ''
+  let patronOptions = { from: '"UVA Library" <no-reply-library@Virginia.EDU>', replyTo: '"UVA Library" <NO-REPLY-LIBRARY@Virginia.EDU>',
+      to: '', cc: '', bcc: '', subject: '', text: '', html: ''
   };
   const now = new Date();
 
@@ -176,47 +181,47 @@ exports.handler = (event, context, callback) => {
 
   // Post the email objects to our server for sending and post the form data to LibInsight.
   const postEmailAndData = function(reqId, requestEmailOptions, confirmEmailOptions, formData) {
-      let queryString = paramsString(requestEmailOptions);
-      nodeFetch(emailUrl, { method: 'POST', body: queryString, headers: headerObj })
-      .then(res => res.text())
-      .then(body => {
-          if (body && (body.search('Status: 201 Created') !== -1)) {
-              console.log(`Library purchase request notification sent for ${reqId}: `+body);
-              queryString = paramsString(confirmEmailOptions);
-              return nodeFetch(emailUrl, { method: 'POST', body: queryString, headers: headerObj });
-          } else {
-              console.log(`Library request notification failed for ${reqId}: `+body);
-              throw new Error(`Library request notification failed for ${reqId}: `+body);
-          }
-      })
-      .then(res => res.text())
-      .then(body => {
-          if(body && (body.search('Status: 201 Created') !== -1)) {
-              console.log(`Patron confirmation notification sent for ${reqId}: `+body);
-              queryString = paramsString(formData);
-              return nodeFetch(apiUrl, { method: 'POST', body: queryString, headers: headerObj });
-          } else {
-              console.log(`Patron confirmation notification failed for ${reqId}: `+body);
-              throw new Error(`Patron confirmation notification failed for ${reqId}: `+body);
-          }
-      })
-      .then(res => res.text())
-      .then(body => {
-          if (body) {
-              const result = JSON.parse(body);
-              if (result.response) {
-                  console.log(`LibInsight data saved for ${reqId}: `+body);
-              }
-          } else {
-              console.log(`Bad response from ${apiUrl}: `+body);
-              throw new Error(`Bad response from ${apiUrl}: `+body);
-          }
-      })
-      .catch(error => function(error) {
-          console.log(`Error for request ${reqId}: `);
-          console.log(error);
-          return error;
-      });
+    mailTransporter.verify((error, success) => {
+        if (error) {
+            console.log('Problem with SMTP server connection...');
+            console.log(error.toString());
+            return error;
+        } else {
+            mailTransporter.sendMail(requestEmailOptions).then(info => {
+                console.log('request email sent, id='+info.messageId);
+                mailTransporter.sendMail(confirmEmailOptions).then(info => {
+                    console.log('confirmation email sent, id='+info.messageId);
+                    console.log(`Library purchase request notifications sent for ${reqId}`);
+                    let queryString = paramsString(formData);
+                    nodeFetch(apiUrl, { method: 'POST', body: queryString, headers: headerObj })
+                    .then(res => res.text())
+                    .then(body => {
+                        if (body) {
+                            const result = JSON.parse(body);
+                            if (result.response) {
+                                console.log(`LibInsight data saved for ${reqId}`);
+                            }
+                        } else {
+                            console.log(`Bad response from ${apiUrl}: `+body);
+                            throw new Error(`Bad response from ${apiUrl}: `+body);
+                        }
+                    })
+                    .catch(error => function(error) {
+                        console.log(`Error for request ${reqId}: `);
+                        console.log(error);
+                        return error;
+                    });
+                }).catch(error => {
+                    console.log(`Library confirmation notification failed for ${reqId}`);
+                    console.log(error.toString());
+                    return error;
+                });
+            }).catch(error => {
+                console.log(`Library request notification failed for ${reqId}`);
+                return error;
+            });
+        }
+    });
   };
   
   // Make sure the form submission POST data is a JSON object.
