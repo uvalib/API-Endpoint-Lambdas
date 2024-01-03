@@ -25,8 +25,9 @@ exports.handler = (event, context, callback) => {
                         '2198,2196', // rmc dml video studio and audio studio
                         '2177,11625,2197', // fine arts
                         '2188', // music
-                        '3780,3781' // total advising 
-                    ];
+                        '3780,3781', // total advising
+                        '41529' // main lib group study rooms
+                      ];
 
     // Exchange 365 Outlook calendars 
     let exchangeConfig = { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } };
