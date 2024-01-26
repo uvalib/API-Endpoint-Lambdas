@@ -250,9 +250,9 @@ exports.handler = (event, context, callback) => {
                             lastDateWithEvents = getDateString(1);
                             //console.log("Outlook: "+lastDateWithEvents);
                             padDaysOut(outlookLocations,lastDateWithEvents,89,eventName);
-                            console.log(JSON.stringify(json_file));
+                            //console.log(JSON.stringify(json_file));
                             // return JSON data for events for all EMS and LibCal spaced referenced.
-                            //callback(null, json_file);
+                            callback(null, json_file);
                           })
                           .catch((err) => {
                             console.error(err);
