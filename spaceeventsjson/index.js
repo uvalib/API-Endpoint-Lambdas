@@ -59,6 +59,9 @@ exports.handler = (event, context, callback) => {
             let startDate = startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
             let endDt = new Date(evt.toDate);
             let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
+            // use nextDt field to determine if an event overlaps into the next day so we create two events.
+            let nextDt = new Date();
+            nextDt.setDate(startDt.getDate()+1);
             // LibCal for reserving after midnight in location that is open from mid-day overnight to next morning.
             if (startDate.includes("24:")) {
                 startDate = startDate.replace("24:", "00:");
@@ -71,7 +74,7 @@ exports.handler = (event, context, callback) => {
                 let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
                 json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate1, roomName: location, status: "confirmed" });
             // for an event that runs past midnight two events need to be created as Visix doesn't support events spanning a day
-            } else if (endDate.includes("24:")) {
+            } else if (endDate.includes("24:") || (endDt.getDate() == nextDt.getDate())) {
                 let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
                 let startDate2 = endDt.toLocaleDateString('en-CA') + ' 00:00';
                 let endDate2 = endDate.replace("24:", "00:");
@@ -243,11 +246,11 @@ exports.handler = (event, context, callback) => {
                               parseSpringshareBookingData(events);
                             }
                             let eventName = "See https://cal.lib.virginia.edu/ for this date's schedule";
-                            let lastDateWithEvents = getDateString(1);
+                            let lastDateWithEvents = getDateString(2);
                             //console.log("Springshare: "+lastDateWithEvents);
                             padDaysOut(springshareLocations,lastDateWithEvents,88,eventName);
                             eventName = "See Outlook calendar for this date's schedule";
-                            lastDateWithEvents = getDateString(0);
+                            lastDateWithEvents = getDateString(1);
                             //console.log("Outlook: "+lastDateWithEvents);
                             padDaysOut(outlookLocations,lastDateWithEvents,89,eventName);
                             //console.log(JSON.stringify(json_file));
