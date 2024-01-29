@@ -243,11 +243,11 @@ exports.handler = (event, context, callback) => {
                               parseSpringshareBookingData(events);
                             }
                             let eventName = "See https://cal.lib.virginia.edu/ for this date's schedule";
-                            let lastDateWithEvents = getDateString(2);
+                            let lastDateWithEvents = getDateString(1);
                             //console.log("Springshare: "+lastDateWithEvents);
                             padDaysOut(springshareLocations,lastDateWithEvents,88,eventName);
                             eventName = "See Outlook calendar for this date's schedule";
-                            lastDateWithEvents = getDateString(1);
+                            lastDateWithEvents = getDateString(0);
                             //console.log("Outlook: "+lastDateWithEvents);
                             padDaysOut(outlookLocations,lastDateWithEvents,89,eventName);
                             //console.log(JSON.stringify(json_file));
