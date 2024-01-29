@@ -90,7 +90,7 @@ exports.handler = (event, context, callback) => {
     // creates all day events in the future that point folks to look at LibCal
     function padDaysOut(locations, theDate, numDays, eventName) {
         for (let j=0; j < locations.length; j++) {
-          for (let k=1; k < numDays+1; k++) {
+          for (let k=0; k < numDays; k++) {
             // create future dates for LibCal spaces
             let nextDay = new Date(theDate);
             nextDay.setDate(nextDay.getDate() + k);
