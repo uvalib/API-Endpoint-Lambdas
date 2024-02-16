@@ -49,7 +49,7 @@ exports.handler = (event, context, callback) => {
     function parseSpringshareBookingData(events) {
         for (let i = 0; i < events.length; i++) {
           // make sure the category has nicknames enabled before attempting to access events otherwise an error will occur
-          if (events[i].nickname && (events[i].status == 'Confirmed')) {
+          if (events[i].nickname && (events[i].status.toLowerCase() == 'confirmed') || (events[i].status.toLowerCase() == 'booked in outlook/exchange')) {
             let evt = events[i];
             let room_num = evt.item_name.replace(/\D/g, '');
             // if the room does not have a number then replace spaces in string with hyphens
