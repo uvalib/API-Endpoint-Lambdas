@@ -32,7 +32,7 @@ exports.handler = (event, context, callback) => {
         "RMC Audio Studio", "Video Studio",
         "Fine Arts Conference Room", "Fine Arts Materials Collection", "Fine Arts R Lab",
         "L013 - Music Library Group Study Room", "L016 - Music Library Group Study Room",
-        "318 C", "318 D", "318 F", "318 G", "318 H", "318 I", "318 K", "318 L", "Edgar Shannon Room (134)"
+        "318 C", "318 D", "318 F", "318 G", "318 H", "318 I", "318 K", "318 L", "134 - Conference Room"
       ];
     let outlookLocations = [
         "Harrison/Small 311", "Main 321", "Main 323", "Main 421", "Main 508 C", "Main 515", "Main 521", "Main 522"
@@ -41,7 +41,7 @@ exports.handler = (event, context, callback) => {
     // get a date string for the number day out in the future from today
     function getDateString(numDayOut) {
         let theDate = new Date();
-        theDate.setDate(theDate.getDate() + numDayOut);
+        theDate.setDate(theDate.getUTCDate() + numDayOut);
         return theDate.toLocaleDateString('en-CA');
     }
     
@@ -93,7 +93,7 @@ exports.handler = (event, context, callback) => {
           for (let k=0; k < numDays; k++) {
             // create future dates for LibCal spaces
             let nextDay = new Date(theDate);
-            nextDay.setDate(nextDay.getDate() + k);
+            nextDay.setDate(nextDay.getUTCDate() + k);
             let tomorrowStart = nextDay.toLocaleDateString('en-CA') + ' 00:00';
             let tomorrowEnd = nextDay.toLocaleDateString('en-CA') + ' 23:59';
             json_file.event.push({ name: eventName, startTime: tomorrowStart, endTime: tomorrowEnd, roomName: locations[j], status: "confirmed" });
@@ -144,7 +144,7 @@ exports.handler = (event, context, callback) => {
                         let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
                         // use nextDt field to determine if an event overlaps into the next day so we create two events.
                         let nextDt = new Date();
-                        nextDt.setDate(startDt.getDate()+1);
+                        nextDt.setDate(startDt.getUTCDate()+1);
                         // for an event that ends at midnight
                         if (endDate.includes("24:00")) {
                             let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
