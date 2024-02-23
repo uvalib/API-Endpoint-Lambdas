@@ -61,7 +61,7 @@ exports.handler = (event, context, callback) => {
             let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
             // use nextDt field to determine if an event overlaps into the next day so we create two events.
             let nextDt = new Date(evt.fromDate);
-            nextDt.setDate(startDt.getDate()+1);
+            nextDt.setDate(nextDt.getDate()+1);
             // LibCal for reserving after midnight in location that is open from mid-day overnight to next morning.
             if (startDate.includes("24:")) {
                 startDate = startDate.replace("24:", "00:");
@@ -142,16 +142,13 @@ exports.handler = (event, context, callback) => {
                         let startDate = startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
                         let endDt = new Date(results[j].eventEndTime);
                         let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
-                        // use nextDt field to determine if an event overlaps into the next day so we create two events.
-                        let nextDt = new Date(results[j].eventStartTime);
-                        nextDt.setDate(nextDt.getUTCDate() + 1);
                         // for an event that ends at midnight
                         if (endDate.includes("24:00")) {
                             let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
                             json_file.event.push({ name: eventInfo, startTime: startDate,
                                 endTime: endDate1, roomName: results[j].room.description, status: "confirmed" });
                         // for an event that runs past midnight two events need to be created as Visix doesn't support events spanning a day
-                        } else if (endDate.includes("24:") || (endDt.getDate() == nextDt.getDate())) {
+                        } else if (endDate.includes("24:") || (endDt.getDate() != startDt.getDate())) {
                             let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
                             let startDate2 = endDt.toLocaleDateString('en-CA') + ' 00:00';
                             let endDate2 = endDate.replace("24:", "00:");
