@@ -144,7 +144,7 @@ exports.handler = (event, context, callback) => {
                         let endDate = endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
                         // use nextDt field to determine if an event overlaps into the next day so we create two events.
                         let nextDt = new Date(results[j].eventStartTime);
-                        nextDt.setDate(nextDt.getUCTDate() + 1);
+                        nextDt.setDate(nextDt.getUTCDate() + 1);
                         // for an event that ends at midnight
                         if (endDate.includes("24:00")) {
                             let endDate1 = startDt.toLocaleDateString('en-CA') + ' 23:59';
