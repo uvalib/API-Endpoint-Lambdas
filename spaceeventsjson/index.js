@@ -75,7 +75,9 @@ exports.handler = (event, context, callback) => {
               let startDate2 = endDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 00:00';
               let endDate2 = endDate.replace("24:", "00:");
               json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate1, roomName: location, status: "confirmed" });
-              json_file.event.push({ name: evt.nickname, startTime: startDate2, endTime: endDate2, roomName: location, status: "confirmed" });
+              if (startDate2 !== endDate2) {
+                json_file.event.push({ name: evt.nickname, startTime: startDate2, endTime: endDate2, roomName: location, status: "confirmed" });
+              }
           } else {
               json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate, roomName: location, status: "confirmed" });
           }
@@ -136,20 +138,18 @@ exports.handler = (event, context, callback) => {
                       // for an event that ends at midnight
                       if (endDate.includes("24:00")) {
                           let endDate1 = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 23:59';
-                          json_file.event.push({ name: eventInfo, startTime: startDate,
-                              endTime: endDate1, roomName: results[j].room.description, status: "confirmed" });
+                          json_file.event.push({ name: eventInfo, startTime: startDate, endTime: endDate1, roomName: results[j].room.description, status: "confirmed" });
                       // for an event that runs past midnight two events need to be created as Visix doesn't support events spanning a day
                       } else if (endDate.includes("24:") || (endDt.toISODate() !== startDt.toISODate())) {
                           let endDate1 = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 23:59';
                           let startDate2 = endDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 00:00';
                           let endDate2 = endDate.replace("24:", "00:");
-                          json_file.event.push({ name: eventInfo, startTime: startDate,
-                              endTime: endDate1, roomName: results[j].room.description, status: "confirmed" });
-                          json_file.event.push({ name: eventInfo, startTime: startDate2,
-                              endTime: endDate2, roomName: results[j].room.description, status: "confirmed" });
+                          json_file.event.push({ name: eventInfo, startTime: startDate, endTime: endDate1, roomName: results[j].room.description, status: "confirmed" });
+                          if (startDate2 !== endDate2) {
+                            json_file.event.push({ name: eventInfo, startTime: startDate2, endTime: endDate2, roomName: results[j].room.description, status: "confirmed" });
+                          }
                       } else {
-                          json_file.event.push({ name: eventInfo, startTime: startDate,
-                              endTime: endDate, roomName: results[j].room.description, status: "confirmed" });
+                          json_file.event.push({ name: eventInfo, startTime: startDate, endTime: endDate, roomName: results[j].room.description, status: "confirmed" });
                       }
                   }
               } // for j
