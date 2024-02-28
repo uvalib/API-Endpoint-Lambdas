@@ -23,6 +23,7 @@ exports.handler = (event, context, callback) => {
                       '2198,2196', // rmc dml video studio and audio studio
                       '2177,11625,2197', // fine arts
                       '2188', // music
+                      '7390,42287,42319', // scholars lab 
                       '3780,3781', // total advising
                       '42077' // staff outlook spaces
                   ];
@@ -32,6 +33,7 @@ exports.handler = (event, context, callback) => {
       "RMC Audio Studio", "Video Studio",
       "Fine Arts Conference Room", "Fine Arts Materials Collection", "Fine Arts R Lab",
       "L013 - Music Library Group Study Room", "L016 - Music Library Group Study Room",
+      "Common Room (Rm 308)", "308B (Fellows Conference Room)", "308K (Consultation Room)",
       "318 C", "318 D", "318 F", "318 G", "318 H", "318 I", "318 K", "318 L", "134 - Conference Room"
     ];
   let outlookLocations = [
@@ -48,12 +50,18 @@ exports.handler = (event, context, callback) => {
   function parseSpringshareBookingData(events) {
       for (let i = 0; i < events.length; i++) {
         // make sure the category has nicknames enabled before attempting to access events otherwise an error will occur
-        if (events[i].nickname && (events[i].status.toLowerCase() == 'confirmed') || (events[i].status.toLowerCase() == 'booked in outlook/exchange')) {
+        if (events[i].nickname) {
           let evt = events[i];
-          let room_num = evt.item_name.replace(/\D/g, '');
-          // if the room does not have a number then replace spaces in string with hyphens
-          room_num = (room_num != '') ? room_num : evt.item_name.replace(/ /g, '-');                    
           let location = evt.item_name;
+          // adjust location and event names for Scholars Lab common 308 spaces
+          if (evt.item_name.includes('Common Room') || evt.item_name.includes('Presentation Space') || evt.item_name.includes('Training Workstations') || evt.item_name.includes('VR Space')) {
+            location = 'Common Room (Rm 308)';
+            if (evt.item_name.includes('Common Room')) {
+              evt.nickname += ' (located in entire Common Room 308)';
+            } else {
+              evt.nickname += ' (located in ' + evt.item_name + ')';
+            }
+          }
           let startDt = DateTime.fromISO(evt.fromDate);
           let startDate = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd HH:mm"); //startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
           let endDt = DateTime.fromISO(evt.toDate);
@@ -103,7 +111,7 @@ exports.handler = (event, context, callback) => {
       'clientID': process.env.ems_api_id,
       'secret': process.env.ems_api_secret
   };
-    
+
   // authentication for Springshare API access
   let springshareAuth = {
       'client_id': process.env.client_id,
@@ -146,7 +154,7 @@ exports.handler = (event, context, callback) => {
                           let endDate2 = endDate.replace("24:", "00:");
                           json_file.event.push({ name: eventInfo, startTime: startDate, endTime: endDate1, roomName: results[j].room.description, status: "confirmed" });
                           if (startDate2 !== endDate2) {
-                            json_file.event.push({ name: eventInfo, startTime: startDate2, endTime: endDate2, roomName: results[j].room.description, status: "confirmed" });
+                              json_file.event.push({ name: eventInfo, startTime: startDate2, endTime: endDate2, roomName: results[j].room.description, status: "confirmed" });
                           }
                       } else {
                           json_file.event.push({ name: eventInfo, startTime: startDate, endTime: endDate, roomName: results[j].room.description, status: "confirmed" });
@@ -166,7 +174,7 @@ exports.handler = (event, context, callback) => {
               }
             }
             // get today for brown
-            axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&cid='+spaceCategoryIDs[0], config)
+            axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[0], config)
             .then((res) => {
               //console.log('brown');
               let events = res.data;
@@ -174,7 +182,7 @@ exports.handler = (event, context, callback) => {
                 parseSpringshareBookingData(events);
               }
               // get today for main
-              axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&cid='+spaceCategoryIDs[1], config)
+              axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[1], config)
               .then((res) => {
                 //console.log('main');
                 let events = res.data;
@@ -182,7 +190,7 @@ exports.handler = (event, context, callback) => {
                   parseSpringshareBookingData(events);
                 }
                 // get today for rmc/dml
-                axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&cid='+spaceCategoryIDs[2], config)
+                axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[2], config)
                 .then((res) => {
                   //console.log('rmc/dml');
                   let events = res.data;
@@ -190,7 +198,7 @@ exports.handler = (event, context, callback) => {
                     parseSpringshareBookingData(events);
                   }
                   // get today for fine arts
-                  axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&cid='+spaceCategoryIDs[3], config)
+                  axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[3], config)
                   .then((res) => {
                     //console.log('fine arts');
                     let events = res.data;
@@ -198,78 +206,89 @@ exports.handler = (event, context, callback) => {
                       parseSpringshareBookingData(events);
                     }
                     // get today for music
-                    axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&cid='+spaceCategoryIDs[4], config)
+                    axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[4], config)
                     .then((res) => {
                       //console.log('music');
                       let events = res.data;
                       if (events.length > 0) {
                         parseSpringshareBookingData(events);
                       }
-                      // get today for total advising (page 1)
-                      axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&cid='+spaceCategoryIDs[5], config)
+                      // get today for scholars lab
+                      axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[5], config)
                       .then((res) => {
-                        //console.log('total advising');
+                        //console.log('scholars lab');
                         let events = res.data;
                         if (events.length > 0) {
                           parseSpringshareBookingData(events);
                         }
-                        if (events.length == 500) {
-                          axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?page=2&days=1&limit=500&include_remote=1&include_tentative=1&cid='+spaceCategoryIDs[5], config)
-                          .then((res) => {
-                            //console.log('total advising page 2');
-                            let events = res.data;
-                            if (events.length > 0) {
-                              parseSpringshareBookingData(events);
-                            }  
-                          })
-                          .catch((err) => {
-                            console.error(err);
-                          });
-                        }
-                        // get today for staff outlook spaces
-                        axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?limit=500&include_remote=1&include_tentative=1&cid='+spaceCategoryIDs[6], config)
+                        // get today for total advising (page 1)
+                        axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[6], config)
                         .then((res) => {
-                          //console.log('staff outlook');
+                          //console.log('total advising');
                           let events = res.data;
                           if (events.length > 0) {
                             parseSpringshareBookingData(events);
                           }
-                          let eventName = "See https://cal.lib.virginia.edu/ for this date's schedule";
-                          let lastDateWithEvents = getFutureDateString(2);
-                          //console.log("Springshare: "+lastDateWithEvents);
-                          padDaysOut(springshareLocations,lastDateWithEvents,88,eventName);
-                          eventName = "See Outlook calendar for this date's schedule";
-                          lastDateWithEvents = getFutureDateString(1);
-                          //console.log("Outlook: "+lastDateWithEvents);
-                          padDaysOut(outlookLocations,lastDateWithEvents,89,eventName);
-                          //console.log(JSON.stringify(json_file));
-                          // return JSON data for events for all EMS and LibCal spaced referenced.
-                          callback(null, json_file);
+                          if (events.length == 500) {
+                            axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?page=2&days=1&limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[6], config)
+                            .then((res) => {
+                              //console.log('total advising page 2');
+                              let events = res.data;
+                              if (events.length > 0) {
+                                parseSpringshareBookingData(events);
+                              }  
+                            })
+                            .catch((err) => {
+                              console.error(err);
+                            });
+                          }
+                          // get today for staff outlook spaces
+                          axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[7], config)
+                          .then((res) => {
+                            //console.log('staff outlook');
+                            let events = res.data;
+                            if (events.length > 0) {
+                              parseSpringshareBookingData(events);
+                            }
+                            let eventName = "See https://cal.lib.virginia.edu/ for this date's schedule";
+                            let lastDateWithEvents = getFutureDateString(2);
+                            //console.log("Springshare: "+lastDateWithEvents);
+                            padDaysOut(springshareLocations,lastDateWithEvents,88,eventName);
+                            eventName = "See Outlook calendar for this date's schedule";
+                            lastDateWithEvents = getFutureDateString(1);
+                            //console.log("Outlook: "+lastDateWithEvents);
+                            padDaysOut(outlookLocations,lastDateWithEvents,89,eventName);
+                            //console.log(JSON.stringify(json_file));
+                            // return JSON data for events for all EMS and LibCal spaced referenced.
+                            callback(null, json_file);
+                          })
+                          .catch((err) => {
+                            console.error(err);
+                          }); // end staff outlook spaces
                         })
                         .catch((err) => {
                           console.error(err);
-                        });
-          
+                        }); // end total advising spaces
                       })
                       .catch((err) => {
                         console.error(err);
-                      });
+                      }); // end scholars lab spaces
                     })
                     .catch((err) => {
                       console.error(err);
-                    });
+                    }); // end music spaces
                   })
                   .catch((err) => {
                     console.error(err);
-                  });
+                  }); // end fine arts spaces
                 })
                 .catch((err) => {
                   console.error(err);
-                });
+                }); // end main spaces
               })
               .catch((err) => {
                 console.error(err);
-              })
+              }) // end brown spaces
             })
             .catch((err) => {
               console.error(err);
