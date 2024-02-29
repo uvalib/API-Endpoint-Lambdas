@@ -47,6 +47,7 @@ This script pulls data from EMS, Outlook, and LibCal and combines them into a si
 ## Adding LibCal Managed Room
 1. In LibCal's admin interface, identify the category ID the room is a member of.
 1. Search for the ```spaceCategoryIDs``` variable in the index.js file and add the category ID to the array (if it is not already listed in it).
+1. If you add a new array entry (rather than adding to the string of an existing array entry), then you will need to modify the main code section where LibCal API calls are made to execute a call to the new Space Category ID(s). 
 
 ## Adjustment Needed For LibCal Room Resources that share a single Visix digital sign
 Most likely the Outlook room name is not the same as the name in LibCal. To have them be the same in the Visix data change the Outlook data to use the LibCal name using the following steps:
