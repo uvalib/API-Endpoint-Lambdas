@@ -39,19 +39,20 @@ This script pulls data from EMS, Outlook, and LibCal and combines them into a si
 1. Search for the ```roomIdArray``` variable in the index.js file and add the room's ID value to the array. 
 
 ## Adding Outlook Managed Room
-1. Request that ITS provide read access to the application id (see exchange_api_client_id environment variable) associated with this script.
-1. Get the email address associated with the Outlook room resource.
-1. Search for the ```roomData``` variable in the index.js file and add the room's email address to the ```"schedules"``` array in the roomData object.
+1. Create a space for the Outlook managed room in LibCal making sure it is in a category that is private.
+1. Have the appropriate UVA user/resource account added as a Delegate user to the Outlook room resource.
+1. Use the Add Space Sync feature in LibCal to synchronize the Outlook room calendar with its LibCal equivalent space using the authentication of the delegate user in the previous step.
+1. If the space category ID the new Outlook Managed Room is not already in the index.js file add it as suggested in the section below. 
 
 ## Adding LibCal Managed Room
 1. In LibCal's admin interface, identify the category ID the room is a member of.
 1. Search for the ```spaceCategoryIDs``` variable in the index.js file and add the category ID to the array (if it is not already listed in it).
 
-## Adjustment Needed For Room Resource Managed in Outlook and LibCal
+## Adjustment Needed For LibCal Room Resources that share a single Visix digital sign
 Most likely the Outlook room name is not the same as the name in LibCal. To have them be the same in the Visix data change the Outlook data to use the LibCal name using the following steps:
-1. Search for ```switch (schedules[i].scheduleId)``` code section in the index.js file.
-1. Add a ```case``` section for the Outlook room's email address.
-1. Set the ```roomName``` variable in this new section to have the value for the name of its corresponding LibCal room.
+1. Search for ```parseSpringshareBookingData``` function in the index.js file.
+1. Look for the comment that mentions changing location and event names.
+1. Adjust the code as needed to accommodate for the space(s) being combined on a single sign. NOTE: Make sure whatever adjustment made to the location value in the JSON data file is reflected in the Visix Connect Room Manager's Calendar settings for the room sign.
 
 
 # Copying local Lambda function code up to the ASW Lambda web interface
