@@ -33,6 +33,9 @@ exports.handler = (event, context, callback) => {
             case 'African-American and African Studies':
                 emailAddr = 'lb-aaas-books@virginia.edu';
                 break;
+            case 'American Studies':
+                emailAddr = 'cjr2q@virginia.edu';
+                break;
             case 'Anthropology':
                 emailAddr = 'lib-anthropology-books@virginia.edu';
                 break;
