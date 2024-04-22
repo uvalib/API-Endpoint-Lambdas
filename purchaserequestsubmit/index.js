@@ -240,7 +240,7 @@ exports.handler = (event, context, callback) => {
         let biblioInfo = '';
         let requestorInfo = '';
         let patronMsg = "<p>A copy of your purchase recommendation is shown below.</p><br>\n\n";
-        let reqId = Object.hasOwn(pData,'timeStamp') ? pData.timeStamp : '';
+        let reqId = "PR-"+ new Date().toISOString();
         let data = { 'field_642': reqId, 'ts_start': now };
     
         // Prepare email message body and LibInsight data parameters

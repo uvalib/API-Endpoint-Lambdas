@@ -33,6 +33,9 @@ exports.handler = (event, context, callback) => {
           case 'African-American and African Studies':
               emailAddr = 'lb-aaas-books@virginia.edu';
               break;
+          case 'American Studies':
+              emailAddr = 'cjr2q@virginia.edu';
+              break;
           case 'Anthropology':
               emailAddr = 'lib-anthropology-books@virginia.edu';
               break;
@@ -235,7 +238,7 @@ exports.handler = (event, context, callback) => {
     let otherPerson = '';
     let biblioInfo = '';
     let requestorInfo = '';
-    let reqId = Object.hasOwn(pData,'timeStamp') ? pData.timeStamp : '';
+    let reqId = "SP-"+ new Date().toISOString();
     let data = { 'field_1525': reqId, 'ts_start': now };
 
     // Prepare email message body and LibInsight data parameters
