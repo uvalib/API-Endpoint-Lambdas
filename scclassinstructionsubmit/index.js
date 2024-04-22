@@ -58,7 +58,7 @@ exports.handler = (event, context, callback) => {
   // Verify that their field defined for the form before attempting to do anything
   if (pData.fields.length && (pData.fields.length > 0)) {
     // **CLASS VISIT AND INSTRUCTION FORM BEGIN
-    let reqId = Object.hasOwn(pData,'timeStamp') ? pData.timeStamp : '';
+    let reqId = "SCV-"+ new Date().toISOString();
     let data = { 'field_874': reqId, 'ts_start': now };
 
 
