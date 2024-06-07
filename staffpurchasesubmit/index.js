@@ -246,6 +246,13 @@ exports.handler = (event, context, callback) => {
     if (purposeOfRequest !== '') {
         msg += "<strong>What is the purpose of this request?:</strong> " + purposeOfRequest + "<br>\n";
         data['field_1482'] = purposeOfRequest;
+        if (purposeOfRequest == 'Supports a course') {
+            let courseInfo = pData.fields.find(t=>t.field_id === 5084496) ? pData.fields.find(t=>t.field_id === 5084496).val : '';
+            if (courseInfo !== '') {
+                msg += "<strong>What course is this request supporting?:</strong> " + courseInfo + "<br>\n";
+                data['field_1936'] = courseInfo;
+            }    
+        }
     }
     let format = pData.fields.find(t=>t.field_id === 4530264) ? pData.fields.find(t=>t.field_id === 4530264).val : '';
     if (format !== '') {
