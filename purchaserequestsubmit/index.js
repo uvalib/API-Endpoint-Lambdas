@@ -75,8 +75,10 @@ exports.handler = (event, context, callback) => {
                 emailAddr = 'lib-classics-books@virginia.edu';
                 break;
             case 'Commerce':
+                emailAddr = 'lib-commerce-books@virginia.edu';
+                break;
             case 'Economics':
-                emailAddr = 'businessbooks@virginia.edu';
+                emailAddr = 'lib-econ-books@virginia.edu';
                 break;
             case 'Computer Science':
                 emailAddr = 'lib-comp-sci-books@virginia.edu';
