@@ -1,0 +1,28 @@
+{
+  "name": "mkrsp-libauth-3dprinter",
+  "version": "1.5.0",
+  "description": "lambda function for reading data from LibInsight and returning a CSV text file",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "Springshare",
+    "LibAuth",
+    "LibInsight",
+    "lambda",
+    "aws",
+    "CSV"
+  ],
+  "author": "jlk4p@virginia.edu",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "luxon": "^3.4.4"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
+}
