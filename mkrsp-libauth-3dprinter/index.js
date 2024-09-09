@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const clientDomain = process.env.libinsight.client_domain;
+const clientDomain = process.env.libinsight_client_domain;
 const datasetId = process.env.libinsight_sl3d_printer_allow_list_dataset_id;
 const startDate = '2024-08-01'; // creation/initial use of the quiz
 const perPage = 100; // Number of records per page

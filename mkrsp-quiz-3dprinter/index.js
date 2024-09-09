@@ -1,5 +1,5 @@
 const axios = require('axios');
-const clientDomain = process.env.libinsight.client_domain;
+const clientDomain = process.env.libinsight_client_domain;
 const clientId = process.env.libinsight_client_id;
 const clientSecret = process.env.libinsight_client_secret;
 const datasetId = process.env.libinsight_sl3d_printer_allow_list_dataset_id;
