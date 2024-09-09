@@ -94,7 +94,7 @@ function todayFormatted() {
   return `${year}-${month}-${day}`;
 }
 
-exports.handler = async (event) => {
+exports.handler = async (event, context, callback) => {
     try {
         const accessToken = await getAccessToken();
         let allRecords = [];

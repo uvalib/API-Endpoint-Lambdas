@@ -21,7 +21,6 @@ async function getAuthToken(clientId, clientSecret) {
         });
 
         const token = response.data.access_token;
-        console.log('Access Token:', token);
         return token;
     } catch (error) {
         console.error('Error obtaining token:', error.response ? error.response.data : error.message);
@@ -45,7 +44,6 @@ async function postDataToCustomDataset(clientId, clientSecret, datasetId, datase
             }
         });
 
-        console.log('Response:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error posting data:', error.response ? error.response.data : error.message);
@@ -63,7 +61,7 @@ function todayDateTimeFormatted() {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
-exports.handler = async (event) => {
+exports.handler = async (event, context, callback) => {
   // Make sure the form submission POST data is a JSON object.
   const pData = event;
 
