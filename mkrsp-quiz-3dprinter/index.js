@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { DateTime } = require("luxon");
 const clientDomain = process.env.libinsight_client_domain;
 const clientId = process.env.libinsight_client_id;
 const clientSecret = process.env.libinsight_client_secret;
@@ -24,6 +25,7 @@ async function getAuthToken(clientId, clientSecret) {
         return token;
     } catch (error) {
         console.error('Error obtaining token:', error.response ? error.response.data : error.message);
+        throw error; // Throw error after logging
     }
 }
 
@@ -47,18 +49,8 @@ async function postDataToCustomDataset(clientId, clientSecret, datasetId, datase
         return response.data;
     } catch (error) {
         console.error('Error posting data:', error.response ? error.response.data : error.message);
+        throw error; // Throw error after logging
     }
-}
-
-function todayDateTimeFormatted() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
 exports.handler = async (event, context, callback) => {
@@ -76,13 +68,17 @@ exports.handler = async (event, context, callback) => {
         if (affiliation !== '') {
             const records = [
                 {
-                    ts_start: todayDateTimeFormatted(),
+                    ts_start: DateTime.now().setZone('America/New_York').toFormat("yyyy-LL-dd HH:mm"),
                     field_1940: parts[0],
                     field_1941: affiliation
                 }
             ];
             
-            postDataToCustomDataset(clientId, clientSecret, datasetId, datasetType, records);    
+            try {
+                await postDataToCustomDataset(clientId, clientSecret, datasetId, datasetType, records);
+            } catch (error) {
+                console.error('Error in postDataToCustomDataset:', error);
+            }
         }
     }
   } 

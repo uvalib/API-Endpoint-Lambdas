@@ -221,54 +221,29 @@ exports.handler = (event, context, callback) => {
                         if (events.length > 0) {
                           parseSpringshareBookingData(events);
                         }
-                        // get today for total advising (page 1)
-                        axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[6], config)
+                        // get today for staff outlook spaces
+                        axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[7], config)
                         .then((res) => {
-                          //console.log('total advising');
+                          //console.log('staff outlook');
                           let events = res.data;
                           if (events.length > 0) {
                             parseSpringshareBookingData(events);
                           }
-                          if (events.length == 500) {
-                            axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?page=2&days=1&limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[6], config)
-                            .then((res) => {
-                              //console.log('total advising page 2');
-                              let events = res.data;
-                              if (events.length > 0) {
-                                parseSpringshareBookingData(events);
-                              }  
-                            })
-                            .catch((err) => {
-                              console.error(err);
-                            });
-                          }
-                          // get today for staff outlook spaces
-                          axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[7], config)
-                          .then((res) => {
-                            //console.log('staff outlook');
-                            let events = res.data;
-                            if (events.length > 0) {
-                              parseSpringshareBookingData(events);
-                            }
-                            let eventName = "See https://cal.lib.virginia.edu/ for this date's schedule";
-                            let lastDateWithEvents = getFutureDateString(2);
-                            //console.log("Springshare: "+lastDateWithEvents);
-                            padDaysOut(springshareLocations,lastDateWithEvents,88,eventName);
-                            eventName = "See Outlook calendar for this date's schedule";
-                            lastDateWithEvents = getFutureDateString(1);
-                            //console.log("Outlook: "+lastDateWithEvents);
-                            padDaysOut(outlookLocations,lastDateWithEvents,89,eventName);
-                            //console.log(JSON.stringify(json_file));
-                            // return JSON data for events for all EMS and LibCal spaced referenced.
-                            callback(null, json_file);
-                          })
-                          .catch((err) => {
-                            console.error(err);
-                          }); // end staff outlook spaces
+                          let eventName = "See https://cal.lib.virginia.edu/ for this date's schedule";
+                          let lastDateWithEvents = getFutureDateString(2);
+                          //console.log("Springshare: "+lastDateWithEvents);
+                          padDaysOut(springshareLocations,lastDateWithEvents,88,eventName);
+                          eventName = "See Outlook calendar for this date's schedule";
+                          lastDateWithEvents = getFutureDateString(1);
+                          //console.log("Outlook: "+lastDateWithEvents);
+                          padDaysOut(outlookLocations,lastDateWithEvents,89,eventName);
+                          //console.log(JSON.stringify(json_file));
+                          // return JSON data for events for all EMS and LibCal spaced referenced.
+                          callback(null, json_file);
                         })
                         .catch((err) => {
                           console.error(err);
-                        }); // end total advising spaces
+                        }); // end staff outlook spaces
                       })
                       .catch((err) => {
                         console.error(err);
