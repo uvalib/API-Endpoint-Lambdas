@@ -25,7 +25,23 @@ phases:
       #
       # build the assets
       #
+      # emsspaces function
       - cd ${CODEBUILD_SRC_DIR}/emsspaces
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # libcal-Hours function
+      - cd ${CODEBUILD_SRC_DIR}/libcal-Hours
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # mkrsp-libauth-3dprinter function
+      - cd ${CODEBUILD_SRC_DIR}/mkrsp-libauth-3dprinter
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # mkrsp-quiz-3dprinter function
+      - cd ${CODEBUILD_SRC_DIR}/mkrsp-quiz-3dprinter
       - npm install
       - zip -r ${deploy_payload} .
       #
@@ -33,7 +49,16 @@ phases:
       #
       #
       # emsspaces function
-      - aws s3 cp ${CODEBUILD_SRC_DIR}/emspaces/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/emspaces/${deploy_payload} --quiet
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/emsspaces/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/emsspaces/${deploy_payload} --quiet
+      #
+      # libcal-Hours function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/libcal-Hours/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/libcal-Hours/${deploy_payload} --quiet
+      #
+      # mkrsp-libauth-3dprinter function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/mkrsp-libauth-3dprinter/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/mkrsp-libauth-3dprinter/${deploy_payload} --quiet
+      #
+      # mkrsp-quiz-3dprinter function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/mkrsp-quiz-3dprinter/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/mkrsp-quiz-3dprinter/${deploy_payload} --quiet
       #
       # create the git commit tag file
       #
