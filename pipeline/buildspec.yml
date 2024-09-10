@@ -26,9 +26,9 @@ phases:
       # build the assets
       #
       # emsspaces function
-      - cd ${CODEBUILD_SRC_DIR}/emsspaces
-      - npm install
-      - zip -r ${deploy_payload} .
+      #- cd ${CODEBUILD_SRC_DIR}/emsspaces
+      #- npm install
+      #- zip -r ${deploy_payload} .
       #
       # libcal-Hours function
       - cd ${CODEBUILD_SRC_DIR}/libcal-Hours
@@ -45,11 +45,31 @@ phases:
       - npm install
       - zip -r ${deploy_payload} .
       #
+      # purchaserequestsubmit function
+      - cd ${CODEBUILD_SRC_DIR}/purchaserequestsubmit
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # scclassinstructionsubmit function
+      - cd ${CODEBUILD_SRC_DIR}/scclassinstructionsubmit
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # spaceeventsjson function
+      - cd ${CODEBUILD_SRC_DIR}/spaceeventsjson
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # staffpurchasesubmit function
+      - cd ${CODEBUILD_SRC_DIR}/staffpurchasesubmit
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
       # copy to the results bucket
       #
       #
       # emsspaces function
-      - aws s3 cp ${CODEBUILD_SRC_DIR}/emsspaces/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/emsspaces/${deploy_payload} --quiet
+      #- aws s3 cp ${CODEBUILD_SRC_DIR}/emsspaces/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/emsspaces/${deploy_payload} --quiet
       #
       # libcal-Hours function
       - aws s3 cp ${CODEBUILD_SRC_DIR}/libcal-Hours/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/libcal-Hours/${deploy_payload} --quiet
@@ -59,6 +79,18 @@ phases:
       #
       # mkrsp-quiz-3dprinter function
       - aws s3 cp ${CODEBUILD_SRC_DIR}/mkrsp-quiz-3dprinter/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/mkrsp-quiz-3dprinter/${deploy_payload} --quiet
+      #
+      # purchaserequestsubmit function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/purchaserequestsubmit/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/purchaserequestsubmit/${deploy_payload} --quiet
+      #
+      # scclassinstructionsubmit function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/scclassinstructionsubmit/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/scclassinstructionsubmit/${deploy_payload} --quiet
+      #
+      # spaceeventsjson function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/spaceeventsjson/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/spaceeventsjson/${deploy_payload} --quiet
+      #
+      # staffpurchasesubmit function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/staffpurchasesubmit/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/staffpurchasesubmit/${deploy_payload} --quiet
       #
       # create the git commit tag file
       #
