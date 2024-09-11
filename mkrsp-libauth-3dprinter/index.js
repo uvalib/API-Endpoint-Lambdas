@@ -112,14 +112,8 @@ exports.handler = async (event, context, callback) => {
             } while (records.payload.records.length === perPage);
         }
 
-        return {
-            'statusCode': 200,
-            'headers': {
-              'Content-Type': 'text/csv',
-              'Content-Disposition': 'attachment; filename="sl3dprinter.csv"'
-            },
-            'body': allRecords.map(obj => obj.computing_id).join('\r\n')
-        };
+        let csvData = allRecords.map(obj => obj.computing_id).join('\r\n');
+        callback(null, csvData);
     } catch (error) {
         return {
             'statusCode': error.response ? error.response.status : 500,
