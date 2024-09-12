@@ -1,5 +1,3 @@
-const axios = require('axios');
-
 const clientDomain = process.env.libinsight_client_domain;
 const datasetId = process.env.libinsight_sl3d_printer_allow_list_dataset_id;
 const startDate = '2024-08-01'; // creation/initial use of the quiz
@@ -10,35 +8,41 @@ const maxRetries = 3; // Maximum number of retries for a failed request
 const getAccessToken = async () => {
     const tokenUrl = `https://${clientDomain}/v1.0/oauth/token`;
 
-    const response = await axios.post(tokenUrl, new URLSearchParams({
-        client_id: process.env.libinsight_client_id,
-        client_secret: process.env.libinsight_client_secret,
-        grant_type: 'client_credentials'
-    }), {
+    const response = await fetch(tokenUrl, {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
-        }
+        },
+        body: new URLSearchParams({
+            client_id: process.env.libinsight_client_id,
+            client_secret: process.env.libinsight_client_secret,
+            grant_type: 'client_credentials'
+        })
     });
 
-    return response.data.access_token;
+    if (!response.ok) {
+        throw new Error(`Failed to get access token: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.access_token;
 };
 
 // Function to get records for a specific page and date range
 const getRecords = async (accessToken, fromDate, toDate, page) => {
     const recordsUrl = `https://${clientDomain}/v1.0/custom-dataset/${datasetId}/data-grid`;
-    const response = await axios.get(recordsUrl, {
-        params: {
-            from: fromDate,
-            to: toDate,
-            page: page,
-            per_page: perPage
-        },
+
+    const response = await fetch(`${recordsUrl}?from=${fromDate}&to=${toDate}&page=${page}&per_page=${perPage}`, {
         headers: {
             'Authorization': `Bearer ${accessToken}`
         }
     });
 
-    return response.data;
+    if (!response.ok) {
+        throw new Error(`Failed to fetch records: ${response.statusText}`);
+    }
+
+    return await response.json();
 };
 
 // Function to split date range into yearly intervals
@@ -86,12 +90,12 @@ const fetchRecordsWithRetry = async (accessToken, fromDate, toDate, page) => {
 };
 
 function todayFormatted() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
 
-  return `${year}-${month}-${day}`;
+    return `${year}-${month}-${day}`;
 }
 
 exports.handler = async (event, context, callback) => {
@@ -112,12 +116,28 @@ exports.handler = async (event, context, callback) => {
             } while (records.payload.records.length === perPage);
         }
 
+        // Generate the CSV data as a string with proper newlines
         let csvData = allRecords.map(obj => obj.computing_id).join('\r\n');
-        callback(null, csvData);
-    } catch (error) {
-        return {
-            'statusCode': error.response ? error.response.status : 500,
-            'body': JSON.stringify({ message: error.message })
+
+        // Return the CSV data with correct headers
+        const response = {
+            statusCode: 200,
+            headers: {
+                'Content-Type': 'text/csv',
+                'Content-Disposition': 'attachment; filename="records.csv"',
+            },
+            body: csvData,
+            isBase64Encoded: false  // This ensures that the body is treated as plain text
         };
+        callback(null, response);
+    } catch (error) {
+        const errorResponse = {
+            statusCode: error.response ? error.response.status : 500,
+            body: JSON.stringify({ message: error.message }),
+        };
+        callback(null, errorResponse);
     }
 };
+
+
+
