@@ -25,11 +25,6 @@ phases:
       #
       # build the assets
       #
-      # emsspaces function
-      #- cd ${CODEBUILD_SRC_DIR}/emsspaces
-      #- npm install
-      #- zip -r ${deploy_payload} .
-      #
       # libcal-Hours function
       - cd ${CODEBUILD_SRC_DIR}/libcal-Hours
       - npm install
@@ -67,9 +62,6 @@ phases:
       #
       # copy to the results bucket
       #
-      #
-      # emsspaces function
-      #- aws s3 cp ${CODEBUILD_SRC_DIR}/emsspaces/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/emsspaces/${deploy_payload} --quiet
       #
       # libcal-Hours function
       - aws s3 cp ${CODEBUILD_SRC_DIR}/libcal-Hours/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/libcal-Hours/${deploy_payload} --quiet

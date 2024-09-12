@@ -21,9 +21,6 @@ phases:
   build:
     commands:
       #
-      # emsspaces function
-      #- aws lambda update-function-code --function-name emsspaces --s3-bucket ${deploy_bucket} --s3-key latest/emsspaces/${deploy_payload}
-      #
       # libcal-Hours function
       #- aws lambda update-function-code --function-name libcalhours --s3-bucket ${deploy_bucket} --s3-key latest/libcal-Hours/${deploy_payload}
       #
