@@ -22,7 +22,7 @@ phases:
     commands:
       #
       # libcal-Hours function
-      #- aws lambda update-function-code --function-name libcalhours --s3-bucket ${deploy_bucket} --s3-key latest/libcal-Hours/${deploy_payload}
+      - aws lambda update-function-code --function-name libcalhours --s3-bucket ${deploy_bucket} --s3-key latest/libcal-Hours/${deploy_payload}
       #
       # mkrsp-libauth-3dprinter function
       - aws lambda update-function-code --function-name mkrsp-libauth-3dprinter --s3-bucket ${deploy_bucket} --s3-key latest/mkrsp-libauth-3dprinter/${deploy_payload}
@@ -31,16 +31,16 @@ phases:
       - aws lambda update-function-code --function-name mkrsp-quiz-3dprinter --s3-bucket ${deploy_bucket} --s3-key latest/mkrsp-quiz-3dprinter/${deploy_payload}
       #
       # purchaserequestsubmit function
-      #- aws lambda update-function-code --function-name purchaserequestsubmit --s3-bucket ${deploy_bucket} --s3-key latest/purchaserequestsubmit/${deploy_payload}
+      - aws lambda update-function-code --function-name purchaserequestsubmit --s3-bucket ${deploy_bucket} --s3-key latest/purchaserequestsubmit/${deploy_payload}
       #
       # scclassinstructionsubmit function
-      #- aws lambda update-function-code --function-name scclassinstructionsubmit --s3-bucket ${deploy_bucket} --s3-key latest/scclassinstructionsubmit/${deploy_payload}
+      - aws lambda update-function-code --function-name scclassinstructionsubmit --s3-bucket ${deploy_bucket} --s3-key latest/scclassinstructionsubmit/${deploy_payload}
       #
       # spaceeventsjson function
-      #- aws lambda update-function-code --function-name eventsjson --s3-bucket ${deploy_bucket} --s3-key latest/spaceeventsjson/${deploy_payload}
+      - aws lambda update-function-code --function-name eventsjson --s3-bucket ${deploy_bucket} --s3-key latest/spaceeventsjson/${deploy_payload}
       #
       # staffpurchasesubmit function
-      #- aws lambda update-function-code --function-name staffpurchasesubmit --s3-bucket ${deploy_bucket} --s3-key latest/staffpurchasesubmit/${deploy_payload}
+      - aws lambda update-function-code --function-name staffpurchasesubmit --s3-bucket ${deploy_bucket} --s3-key latest/staffpurchasesubmit/${deploy_payload}
 
 #  post_build:
 #    commands:
