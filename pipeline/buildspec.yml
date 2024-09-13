@@ -60,6 +60,11 @@ phases:
       - npm install
       - zip -r ${deploy_payload} .
       #
+      # totaladvisinglibcalspaceevents function
+      - cd ${CODEBUILD_SRC_DIR}/totaladvisinglibcalspaceevents
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
       # copy to the results bucket
       #
       #
@@ -83,6 +88,9 @@ phases:
       #
       # staffpurchasesubmit function
       - aws s3 cp ${CODEBUILD_SRC_DIR}/staffpurchasesubmit/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/staffpurchasesubmit/${deploy_payload} --quiet
+      #
+      # totaladvisinglibcalspaceevents function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/totaladvisinglibcalspaceevents/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/totaladvisinglibcalspaceevents/${deploy_payload} --quiet
       #
       # create the git commit tag file
       #

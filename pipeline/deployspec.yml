@@ -41,6 +41,9 @@ phases:
       #
       # staffpurchasesubmit function
       - aws lambda update-function-code --function-name staffpurchasesubmit --s3-bucket ${deploy_bucket} --s3-key latest/staffpurchasesubmit/${deploy_payload}
+      #
+      # totaladvisinglibcalspaceevents function
+      - aws lambda update-function-code --function-name totalAdvisingLibcalSpaceEvents --s3-bucket ${deploy_bucket} --s3-key latest/totaladvisinglibcalspaceevents/${deploy_payload}
 
 #  post_build:
 #    commands:
