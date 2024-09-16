@@ -20,7 +20,7 @@ exports.handler = (event, context, callback) => {
   // LibCal Space category identifiers are needed to retrieve all of the space events.
   const spaceCategoryIDs = ['2181,8435', // brown sel
                       '41529', // main lib group study rooms
-                      '2198,2196', // rmc dml video studio and audio studio
+                      '2198,2196,44970', // rmc dml video studio and audio studio, and clemons 112
                       '2177,11625,2197', // fine arts
                       '2188', // music
                       '7390,42287,42319', // scholars lab 
