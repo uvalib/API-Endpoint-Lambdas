@@ -281,13 +281,8 @@ exports.handler = (event, context, callback) => {
         data['field_1522'] = electronicVersionPreferred;
     }
 
-    let isRushRequest = pData.fields.find(t=>t.field_id === 4530688) ? pData.fields.find(t=>t.field_id === 4530688).val : '';
-    if (isRushRequest !== '') {
-        msg += "<strong>Is this a rush request?</strong> " + isRushRequest + "<br>\n";
-        data['field_1481'] = isRushRequest;
-        subjPrefix = (isRushRequest === "Yes") ? "Rush: " : "";
-    }
-    msg += "<br>\n";
+    let isRushRequest = "No";
+    data['field_1481'] = isRushRequest;
 
     // Create requestor info output content and set appropriate LibInsight fields.
     requestorInfo += "\n<h3>Requested by</h3>\n\n<p>";
@@ -825,7 +820,7 @@ exports.handler = (event, context, callback) => {
     biblioInfo += "</p><br>\n";
 
     // Prepare email content for Library staff
-    libraryOptions.subject = subjPrefix + 'Staff Purchase Request';
+    libraryOptions.subject = 'Staff Purchase Request';
     libraryOptions.from = '"' + yourName + '" <' + yourEmailAddress + '>';
     libraryOptions.replyTo = yourEmailAddress;
     // Routing varies based on format
@@ -852,7 +847,7 @@ exports.handler = (event, context, callback) => {
     libraryOptions.text = stripHtml(msg + biblioInfo + requestorInfo + otherPerson + reqText);
 
     // Prepare email confirmation content for staff
-    patronOptions.subject = subjPrefix + 'Staff Purchase Request';
+    patronOptions.subject = 'Staff Purchase Request';
     patronOptions.to = yourEmailAddress;
     patronOptions.html = msg + biblioInfo + requestorInfo + otherPerson + reqText;
     patronOptions.text = stripHtml(msg + biblioInfo + requestorInfo + otherPerson + reqText);
