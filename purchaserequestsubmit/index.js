@@ -236,7 +236,6 @@ exports.handler = (event, context, callback) => {
     if (pData.fields.length && (pData.fields.length > 0)) {
         // **PURCHASE RECOMMENDATION FORM BEGIN
         let adminMsg = '';
-        let subjPre = '';
         let courseInfo = '';
         let courseTerm = '';
         let biblioInfo = '';
@@ -303,17 +302,8 @@ exports.handler = (event, context, callback) => {
             data['field_683'] = electronicVersionPreferred;
         }
 
-        // type of request field is required and available for book and ebook
-        let typeOfRequest = pData.fields.find(t=>t.field_id === 4513048).val;
-        if ((format === 'Book') || (format === 'eBook')) {
-            msg = "<strong>Type of request:</strong> " + typeOfRequest + "<br>\n";
-            adminMsg += msg;
-            patronMsg += msg;
-            // set the subject line prefix to the appropriate string
-            subjPre = (typeOfRequest === 'Not needed immediately') ? 'Non-rush' : 'Rush';
-        } else {
-            subjPre = 'Non-rush';
-        }
+        // type of request field removed in December 2024 (was required and available for book and ebook)
+        let typeOfRequest = 'Non-rush';
         data['field_646'] = typeOfRequest;
 
         if (forCourseReserves === "Yes") {
@@ -908,8 +898,7 @@ exports.handler = (event, context, callback) => {
         }
     
         // Prepare email content for Library staff
-        libraryOptions.subject = subjPre + ': ';
-        libraryOptions.subject += (forCourseReserves && (forCourseReserves === "Yes")) ? courseTerm + ' Reserve ' : '';
+        libraryOptions.subject = (forCourseReserves && (forCourseReserves === "Yes")) ? courseTerm + ' Reserve ' : '';
         libraryOptions.subject += 'Purchase Recommendation ';
         libraryOptions.from = '"' + name + '" <' + emailAddress + '>';
         libraryOptions.replyTo = emailAddress;
