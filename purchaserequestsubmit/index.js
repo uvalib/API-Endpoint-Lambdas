@@ -152,7 +152,7 @@ exports.handler = (event, context, callback) => {
             case 'Religious Studies':
                 emailAddr = 'relstudiesbooks@virginia.edu';
                 break;
-            case 'Science, Technology and Society':
+            case 'STS - Engineering and Society':
                 emailAddr = 'sci-tech-society-books@virginia.edu';
                 break;
             case 'Slavic':
