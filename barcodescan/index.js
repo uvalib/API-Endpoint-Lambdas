@@ -1,9 +1,12 @@
 exports.handler = async function(event, context, callback) {
 
   const fetch = require('node-fetch');
-  const authURL = process.env.ilsConnectorUrl+"/v4/users/sirsi_staff_login";
-  const holdURL = process.env.ilsConnectorUrl+"/v4/requests/fill_hold/";
-  const userURL = "https://uva.hosts.atlas-sys.com/illiadwebplatform/Users/ExternalUserId/";
+//  const authURL = process.env.ilsConnectorUrl+"/v4/users/sirsi_staff_login";
+//  const holdURL = process.env.ilsConnectorUrl+"/v4/requests/fill_hold/";
+//  const userURL = "https://uva.hosts.atlas-sys.com/illiadwebplatform/Users/ExternalUserId/";
+  const authURL = process.env.ilsConnectorStaffLoginUrl;
+  const holdURL = process.env.ilsConnectorFillHoldUrl;
+  const userURL = process.env.illiadUserUrl;
   const illiadKey = process.env.ApiKey;
 
   const jsonHeaders = {
