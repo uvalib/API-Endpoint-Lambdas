@@ -37,8 +37,9 @@ exports.handler = (event, context, callback) => {
       "318 C", "318 D", "318 F", "318 G", "318 H", "318 I", "318 K", "318 L", "134 - Conference Room"
     ];
   let outlookLocations = [
-      "Harrison/Small 311", "Main 321", "Main 323", "Main 421", "Main 508 C", "Main 515", "Main 521", "Main 522"
-  ];
+    "Harrison/Small 311", "Main 321", "Main 323", "Main 421", "Main 508 C", "Main 515", "Main 521", "Main 522",
+    "RBS234-Tanenbaum", "RBS-236-Seminar C", "RBS238-Belanger", "RBS240-Printing Office"
+];
     
   // get a date string for the number of days out in the future from today
   function getFutureDateString(numDaysOut) {
