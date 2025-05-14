@@ -45,6 +45,7 @@ exports.handler = (event, context, callback) => {
           case 'Architecture':
           case 'Architectural History':
           case 'Landscape Architecture':
+          case 'Urban and Environmental Planning':
               emailAddr = 'lib-architecture-books@virginia.edu';
               break;
           case 'Art':
