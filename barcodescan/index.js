@@ -8,7 +8,7 @@ exports.handler = async function(event, context, callback) {
   const holdURL = process.env.ilsConnectorFillHoldUrl;
   const userURL = process.env.illiadUserUrl;
   const illiadKey = process.env.ApiKey;
-  
+
 
   const jsonHeaders = {
     'Content-Type': 'application/json',
@@ -41,12 +41,14 @@ exports.handler = async function(event, context, callback) {
   // we have userid and pass but no token, get a session token
   if (!sessionToken && authUser && authPass) {
     const userpass = {username:authUser, password:authPass};
-console.log("body:");
-console.log(userpass);
     let response = await fetch(authURL,{ method: 'POST', headers: jsonHeaders, body: JSON.stringify(userpass)});
-    sirsiUser = await response.json();
-console.log("sirsi User return:");
-console.log(sirsiUser);      
+    try {
+      sirsiUser = await response.json();
+    } catch (err) {
+      // JSON parse failed, treat as bad login
+      callback(null, {'statusCode': 401, 'headers': jsonHeaders, 'body': errorResponse("Looks like that user/pass was no good!!!")} );
+      return;
+    }
     // yeah, we got a session now!
     if (sirsiUser.sessionToken) sessionToken = sirsiUser.sessionToken;
     // yeah, looks like those creds were bad, bummer!
@@ -75,7 +77,6 @@ console.log(sirsiUser);
         return fetch(holdURL+barcodePath,{ method: 'POST', body: '{}', headers:{'Content-Type':'application/json','Authorization':"Bearer anything",'SirsiSessionToken':sessionToken} })
           .then(res=>res.json())
           .then(json=>{
-console.log(json);
               if ( Array.isArray(json) && json.length === 0 ) {
                   // Invalid barcode most likely
                   return errorResponse("It seems that you have entered an invalid barcode, please check and try again.");
