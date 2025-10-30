@@ -4,12 +4,12 @@ exports.handler = async (event, context, callback) => {
   const nodeFetch = require('node-fetch');
   const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
 
-  // Environment variables configured for use with sending emails and saving data to LibInsight for forms.
+  // Environment variables configured for use with LibInsight API.
   const apiUrl = process.env.sc_class_instruction_api_url;
-  const tokenUrl = process.env.sc_class_instruction_token_url; 
-  const clientId = process.env.sc_class_instruction_client_id; 
-  const clientSecret = process.env.sc_class_instruction_client_secret; 
-  
+  const tokenUrl = process.env.sc_class_instruction_token_url;
+  const clientId = process.env.sc_class_instruction_client_id;
+  const clientSecret = process.env.sc_class_instruction_client_secret;
+
   // Initialize objects.
   const now = new Date();
 
@@ -60,7 +60,7 @@ exports.handler = async (event, context, callback) => {
 
       const response = await nodeFetch(apiUrl, {
         method: 'POST',
-        body: queryString,
+        body: JSON.stringify([formData]),
         headers: {
           ...headerObj,
           Authorization: `Bearer ${token}` 
