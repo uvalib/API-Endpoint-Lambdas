@@ -5,11 +5,10 @@ exports.handler = async (event, context, callback) => {
   const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
 
   // Environment variables configured for use with LibInsight API.
-  const apiUrl = process.env.springshare_libinsight_api_url;
-  const tokenUrl = process.env.springshare_libinsight_token_url;
+  const apiUrl = `${process.env.springshare_libinsight_api_url}/custom-dataset/18637/save`;
+  const tokenUrl = `${process.env.springshare_libinsight_api_url}/oauth/token`;
   const clientId = process.env.springshare_libinsight_client_id;
   const clientSecret = process.env.springshare_libinsight_client_secret;
-
   // Initialize objects.
   const now = new Date();
 
