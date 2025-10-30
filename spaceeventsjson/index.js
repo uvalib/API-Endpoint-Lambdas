@@ -34,10 +34,10 @@ exports.handler = (event, context, callback) => {
       "Fine Arts Conference Room", "Fine Arts Materials Collection", "Fine Arts R Lab",
       "L013 - Music Library Group Study Room", "L016 - Music Library Group Study Room",
       "Common Room (Rm 308)", "308B (Fellows Conference Room)", "308K (Consultation Room)",
-      "318 C", "318 D", "318 F", "318 G", "318 H", "318 I", "318 K", "318 L", "134 - Conference Room"
+      "318 C", "318 D", "318 F", "318 G", "318 H", "318 I", "318 K", "318 L", "134 - Conference Room", "Shannon 321 (Taylor Room)"
     ];
   let outlookLocations = [
-    "Harrison/Small 311", "Main 321", "Main 323", "Main 421", "Main 508 C", "Main 515", "Main 521", "Main 522",
+    "Harrison/Small 311", "Main 323", "Main 421", "Main 508 C", "Main 515", "Main 521", "Main 522",
     "RBS234-Tanenbaum", "RBS-236-Seminar C", "RBS238-Belanger", "RBS240-Printing Office"
 ];
     
