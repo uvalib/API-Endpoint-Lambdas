@@ -19,6 +19,7 @@
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "node-fetch": "^2.6.7"
   }
 }

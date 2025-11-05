@@ -1,12 +1,14 @@
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context, callback) => {
 
   const formName = 'SC Class Visit and Instruction';
   const nodeFetch = require('node-fetch');
   const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
 
-  // Environment variables configured for use with sending emails and saving data to LibInsight for forms.
-  const apiUrl = process.env.sc_class_instruction_api_url; 
-  
+  // Environment variables configured for use with LibInsight API.
+  const apiUrl = `${process.env.springshare_libinsight_api_url}/custom-dataset/18637/save`;
+  const tokenUrl = `${process.env.springshare_libinsight_api_url}/oauth/token`;
+  const clientId = process.env.springshare_libinsight_client_id;
+  const clientSecret = process.env.springshare_libinsight_client_secret;
   // Initialize objects.
   const now = new Date();
 
@@ -29,29 +31,58 @@ exports.handler = (event, context, callback) => {
     return str;
   }
 
-  // Post the form data to LibInsight.
-  const postData = function(reqId, formData) {
-      let queryString = paramsString(formData);
-      nodeFetch(apiUrl, { method: 'POST', body: queryString, headers: headerObj })
-      .then(res => res.text())
-      .then(body => {
-        if (body) {
-            const result = JSON.parse(body);
-            if (result.response) {
-                console.log(`LibInsight data saved for ${reqId}: `+body);
-            }
-        } else {
-            console.log(`Bad response from ${apiUrl}: `+body);
-            throw new Error(`Bad response from ${apiUrl}: `+body);
-        }
+  // Get OAuth2 token.
+  const getAuthToken = async () => {
+    const tokenResponse = await nodeFetch(tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: paramsString({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret
       })
-      .catch(error => function(error) {
-          console.log(`Error for request ${reqId}: `);
-          console.log(error);
-          return error;
-      });
+    });
+
+    if (!tokenResponse.ok) {
+      throw new Error(`Failed to fetch token: ${tokenResponse.statusText}`);
+    }
+
+    const tokenData = await tokenResponse.json();
+    return tokenData.access_token;
   };
-  
+
+  // Post the form data to LibInsight.
+  const postData = async (reqId, formData) => {
+    try {
+      const token = await getAuthToken();
+      const queryString = paramsString(formData);
+
+      const response = await nodeFetch(apiUrl, {
+        method: 'POST',
+        body: JSON.stringify([formData]),
+        headers: {
+          ...headerObj,
+          Authorization: `Bearer ${token}` 
+        }
+      });
+
+      const body = await response.text();
+      if (response.ok) {
+        const result = JSON.parse(body);
+        if (result.response) {
+          console.log(`LibInsight data saved for ${reqId}: ` + body);
+        }
+      } else {
+        console.log(`Bad response from ${apiUrl}: ` + body);
+        throw new Error(`Bad response from ${apiUrl}: ` + body);
+      }
+    } catch (error) {
+      console.log(`Error for request ${reqId}: `);
+      console.log(error);
+      return error;
+    }
+  };
+
   // Make sure the form submission POST data is a JSON object.
   const pData = event;
 
@@ -189,14 +220,13 @@ exports.handler = (event, context, callback) => {
     }
 
     try {
-        return postData(reqId, data);
+        return await postData(reqId, data);
     }
     catch (error) {
         console.log(`error: ${JSON.stringify(error)}`);
         return error;
     }
     // **CLASS VISIT AND INSTRUCTION FORM END
-  
   } else {
       console.log(`Warning: ${formName} form submission without any fields in it.`);
   }
