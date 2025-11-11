@@ -247,24 +247,10 @@ exports.handler = async (event, context, callback) => {
                 mailTransporter.sendMail(confirmEmailOptions).then(info => {
                     console.log('confirmation email sent, id='+info.messageId);
                     console.log(`Library purchase request notifications sent for ${reqId}`);
-                    let queryString = paramsString(formData);
-                    nodeFetch(apiUrl, { method: 'POST', body: queryString, headers: headerObj })
-                    .then(res => res.text())
-                    .then(body => {
-                        if (body) {
-                            const result = JSON.parse(body);
-                            if (result.response) {
-                                console.log(`LibInsight data saved for ${reqId}`);
-                            }
-                        } else {
-                            console.log(`Bad response from ${apiUrl}: `+body);
-                            throw new Error(`Bad response from ${apiUrl}: `+body);
-                        }
-                    })
-                    .catch(error => function(error) {
-                        console.log(`Error for request ${reqId}: `);
-                        console.log(error);
-                        return error;
+                    postData(reqId, formData).then(result => {
+                        console.log(`LibInsight data saved for ${reqId}:`, result);
+                    }).catch(error => {
+                        console.log(`Error saving LibInsight data for ${reqId}:`, error);
                     });
                 }).catch(error => {
                     console.log(`Library confirmation notification failed for ${reqId}`);
