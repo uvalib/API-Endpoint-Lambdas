@@ -186,59 +186,55 @@ exports.handler = async (event, context, callback) => {
       return Object.keys(obj).map(key => key + '=' + encodeURIComponent(obj[key])).join('&');
   };
 
-  // Get OAuth2 token
+  // Get OAuth2 token.
   const getAuthToken = async () => {
     const tokenResponse = await nodeFetch(tokenUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: paramsString({
-            grant_type: 'client_credentials',
-            client_id: clientId,
-            client_secret: clientSecret
-        })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: paramsString({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret
+      })
     });
 
     if (!tokenResponse.ok) {
-        throw new Error(`Failed to fetch token: ${tokenResponse.statusText}`);
+      throw new Error(`Failed to fetch token: ${tokenResponse.statusText}`);
     }
 
     const tokenData = await tokenResponse.json();
     return tokenData.access_token;
-};
+  };
 
   // Post the form data to LibInsight.
   const postData = async (reqId, formData) => {
     try {
-        const token = await getAuthToken();
-        const queryString = paramsString(formData);
+      const token = await getAuthToken();
+      const queryString = paramsString(formData);
 
-        const response = await nodeFetch(apiUrl, {
-            method: 'POST',
-            body: JSON.stringify([formData]),
-            headers: {
-                ...headerObj,
-                Authorization: `Bearer ${token}` 
-            }
-        });
-
-        const body = await response.text();
-        if (response.ok) {
-            const result = JSON.parse(body);
-            if (result.response) {
-                console.log(`LibInsight data saved for ${reqId}: ` + body);
-            }
-        } else {
-            console.log(`Bad response from ${apiUrl}: ` + body);
-            throw new Error(`Bad response from ${apiUrl}: ` + body);
+      const response = await nodeFetch(apiUrl, {
+        method: 'POST',
+        body: JSON.stringify([formData]),
+        headers: {
+          ...headerObj,
+          Authorization: `Bearer ${token}` 
         }
-    } catch (error) {
-        console.log(`Error for request ${reqId}: `);
-        console.log(error);
-        return error;
-    }
-};
+      });
 
-  // Post the email objects to our server for sending and post the form data to LibInsight.
+      const body = await response.text();
+      if (response.ok) {
+        console.log(`Success for request ${reqId}:`, body);
+        return body; 
+      } else {
+        console.log(`Failed for request ${reqId}:`, body);
+        throw new Error(`Failed to post data: ${body}`);
+      }
+    } catch (error) {
+      console.log(`Error for request ${reqId}:`, error);
+      return error;
+    }
+  };
+
   const postEmailAndData = function(reqId, requestEmailOptions, confirmEmailOptions, formData) {
     mailTransporter.verify((error, success) => {
         if (error) {
@@ -914,12 +910,10 @@ exports.handler = async (event, context, callback) => {
             return postEmailAndData(reqId, libraryOptions, patronOptions, data);
         } catch (error) {
             console.log(`error: ${JSON.stringify(error)}`);
-            return error;
         }
     }
     catch (error) {
         console.log(`error: ${JSON.stringify(error)}`);
-        return error;
     }
     // **STAFF PURCHASE REQUEST FORM BEGIN
  
