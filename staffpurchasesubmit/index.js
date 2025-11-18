@@ -892,8 +892,8 @@ exports.handler = async (event, context, callback) => {
 
     try {
         try {
-            await postData(reqId, data);
-            return postEmailAndData(reqId, libraryOptions, patronOptions, data);
+            //await postData(reqId, data);
+            return await postEmailAndData(reqId, libraryOptions, patronOptions, data);
         } catch (error) {
             console.log(`error: ${JSON.stringify(error)}`);
         }
