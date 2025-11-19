@@ -1,4 +1,4 @@
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context, callback) => {
 
   const formName = 'Staff Purchase Request';
   const nodeFetch = require('node-fetch');
@@ -6,8 +6,11 @@ exports.handler = (event, context, callback) => {
   const stripHtml = require('string-strip-html');
   const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
 
-  // Environment variables configured for use with sending emails and saving data to LibInsight for forms.
-  const apiUrl = process.env.staff_purch_req_api_url; 
+  // Environment variables configured for use with LibInsight API.
+  const apiUrl = `${process.env.springshare_libinsight_api_url}/custom-dataset/22758/save`;
+  const tokenUrl = `${process.env.springshare_libinsight_api_url}/oauth/token`;
+  const clientId = process.env.springshare_libinsight_client_id;
+  const clientSecret = process.env.springshare_libinsight_client_secret;
 
   // SMTP mail server settings
   const smtpServer = {
@@ -183,7 +186,55 @@ exports.handler = (event, context, callback) => {
       return Object.keys(obj).map(key => key + '=' + encodeURIComponent(obj[key])).join('&');
   };
 
-  // Post the email objects to our server for sending and post the form data to LibInsight.
+  // Get OAuth2 token.
+  const getAuthToken = async () => {
+    const tokenResponse = await nodeFetch(tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: paramsString({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret
+      })
+    });
+
+    if (!tokenResponse.ok) {
+      throw new Error(`Failed to fetch token: ${tokenResponse.statusText}`);
+    }
+
+    const tokenData = await tokenResponse.json();
+    return tokenData.access_token;
+  };
+
+  // Post the form data to LibInsight.
+  const postData = async (reqId, formData) => {
+    try {
+      const token = await getAuthToken();
+      const queryString = paramsString(formData);
+
+      const response = await nodeFetch(apiUrl, {
+        method: 'POST',
+        body: JSON.stringify([formData]),
+        headers: {
+          ...headerObj,
+          Authorization: `Bearer ${token}` 
+        }
+      });
+
+      const body = await response.text();
+      if (response.ok) {
+        console.log(`Success for request ${reqId}:`, body);
+        return body; 
+      } else {
+        console.log(`Failed for request ${reqId}:`, body);
+        throw new Error(`Failed to post data: ${body}`);
+      }
+    } catch (error) {
+      console.log(`Error for request ${reqId}:`, error);
+      return error;
+    }
+  };
+
   const postEmailAndData = function(reqId, requestEmailOptions, confirmEmailOptions, formData) {
     mailTransporter.verify((error, success) => {
         if (error) {
@@ -196,23 +247,12 @@ exports.handler = (event, context, callback) => {
                 mailTransporter.sendMail(confirmEmailOptions).then(info => {
                     console.log('confirmation email sent, id='+info.messageId);
                     console.log(`Library purchase request notifications sent for ${reqId}`);
-                    let queryString = paramsString(formData);
-                    nodeFetch(apiUrl, { method: 'POST', body: queryString, headers: headerObj })
-                    .then(res => res.text())
-                    .then(body => {
-                        if (body) {
-                            const result = JSON.parse(body);
-                            if (result.response) {
-                                console.log(`LibInsight data saved for ${reqId}`);
-                            }
-                        } else {
-                            console.log(`Bad response from ${apiUrl}: `+body);
-                            throw new Error(`Bad response from ${apiUrl}: `+body);
-                        }
-                    })
-                    .catch(error => function(error) {
-                        console.log(`Error for request ${reqId}: `);
-                        console.log(error);
+                    postData(reqId, formData).then(response => {
+                        console.log(`LibInsight data saved for ${reqId}`);
+                        return response;
+                    }).catch(error => {
+                        console.log(`Library purchase request data failed for ${reqId}`);
+                        console.log(error.toString());
                         return error;
                     });
                 }).catch(error => {
@@ -854,11 +894,14 @@ exports.handler = (event, context, callback) => {
     patronOptions.text = stripHtml(msg + biblioInfo + requestorInfo + otherPerson + reqText);
 
     try {
-        return postEmailAndData(reqId, libraryOptions, patronOptions, data);
+        try {
+            return postEmailAndData(reqId, libraryOptions, patronOptions, data);
+        } catch (error) {
+            console.log(`error: ${JSON.stringify(error)}`);
+        }
     }
     catch (error) {
         console.log(`error: ${JSON.stringify(error)}`);
-        return error;
     }
     // **STAFF PURCHASE REQUEST FORM BEGIN
  
@@ -866,3 +909,18 @@ exports.handler = (event, context, callback) => {
       console.log(`Warning: ${formName} form submission without any fields in it.`);
   }
 };
+
+// Test the exports.handler function
+const testEvent = require('./staffpurchase-2022-11-28.json'); // Replace with your test event file
+
+const context = {}; // Mock context
+const callback = (error, result) => {
+    if (error) {
+        console.error('Error:', error);
+    } else {
+        console.log('Result:', result);
+    }
+};
+
+// Run the handler function
+exports.handler(testEvent, context, callback);
