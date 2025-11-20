@@ -909,18 +909,3 @@ exports.handler = async (event, context, callback) => {
       console.log(`Warning: ${formName} form submission without any fields in it.`);
   }
 };
-
-// Test the exports.handler function
-const testEvent = require('./staffpurchase-2022-11-28.json'); // Replace with your test event file
-
-const context = {}; // Mock context
-const callback = (error, result) => {
-    if (error) {
-        console.error('Error:', error);
-    } else {
-        console.log('Result:', result);
-    }
-};
-
-// Run the handler function
-exports.handler(testEvent, context, callback);
