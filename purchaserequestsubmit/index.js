@@ -1,4 +1,4 @@
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context, callback) => {
 
     const formName = 'Purchase Recommendation';
     const nodeFetch = require('node-fetch');
@@ -6,8 +6,11 @@ exports.handler = (event, context, callback) => {
     const stripHtml = require('string-strip-html');
     const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
 
-    // Environment variables configured for use with sending emails and saving data to LibInsight for forms.
-    const apiUrl = process.env.purchase_rec_api_url; 
+    // Environment variables configured for use with LibInsight API.
+    const apiUrl = `${process.env.springshare_libinsight_api_url}/custom-dataset/15512/save`;
+    const tokenUrl = `${process.env.springshare_libinsight_api_url}/oauth/token`;
+    const clientId = process.env.springshare_libinsight_client_id;
+    const clientSecret = process.env.springshare_libinsight_client_secret;
     
     // SMTP mail server settings
     const smtpServer = {
@@ -198,24 +201,10 @@ exports.handler = (event, context, callback) => {
                     mailTransporter.sendMail(confirmEmailOptions).then(info => {
                         console.log('confirmation email sent, id='+info.messageId);
                         console.log(`Library purchase request notifications sent for ${reqId}`);
-                        let queryString = paramsString(formData);
-                        nodeFetch(apiUrl, { method: 'POST', body: queryString, headers: headerObj })
-                        .then(res => res.text())
-                        .then(body => {
-                            if (body) {
-                                const result = JSON.parse(body);
-                                if (result.response) {
-                                    console.log(`LibInsight data saved for ${reqId}`);
-                                }
-                            } else {
-                                console.log(`Bad response from ${apiUrl}: `+body);
-                                throw new Error(`Bad response from ${apiUrl}: `+body);
-                            }
-                        })
-                        .catch(error => function(error) {
-                            console.log(`Error for request ${reqId}: `);
-                            console.log(error);
-                            return error;
+                        postData(reqId, formData).then(result => {
+                            console.log(`LibInsight data saved for ${reqId}:`, result);
+                        }).catch(error => {
+                            console.log(`Error saving LibInsight data for ${reqId}:`, error);
                         });
                     }).catch(error => {
                         console.log(`Library confirmation notification failed for ${reqId}`);
@@ -229,7 +218,59 @@ exports.handler = (event, context, callback) => {
             }
         });
     };
-        
+
+    // Get OAuth2 token.
+    const getAuthToken = async () => {
+        const tokenResponse = await nodeFetch(tokenUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: paramsString({
+            grant_type: 'client_credentials',
+            client_id: clientId,
+            client_secret: clientSecret
+        })
+        });
+
+        if (!tokenResponse.ok) {
+        throw new Error(`Failed to fetch token: ${tokenResponse.statusText}`);
+        }
+
+        const tokenData = await tokenResponse.json();
+        return tokenData.access_token;
+    };
+
+    // Post the form data to LibInsight.
+    const postData = async (reqId, formData) => {
+        try {
+        const token = await getAuthToken();
+        const queryString = paramsString(formData);
+
+        const response = await nodeFetch(apiUrl, {
+            method: 'POST',
+            body: JSON.stringify([formData]),
+            headers: {
+            ...headerObj,
+            Authorization: `Bearer ${token}` 
+            }
+        });
+
+        const body = await response.text();
+        if (response.ok) {
+            const result = JSON.parse(body);
+            if (result.response) {
+            console.log(`LibInsight data saved for ${reqId}: ` + body);
+            }
+        } else {
+            console.log(`Bad response from ${apiUrl}: ` + body);
+            throw new Error(`Bad response from ${apiUrl}: ` + body);
+        }
+        } catch (error) {
+        console.log(`Error for request ${reqId}: `);
+        console.log(error);
+        return error;
+        }
+    };
+
     // Make sure the form submission POST data is a JSON object.
     const pData = event;
 
