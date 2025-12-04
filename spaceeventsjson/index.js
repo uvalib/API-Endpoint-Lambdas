@@ -27,6 +27,7 @@ exports.handler = (event, context, callback) => {
                       '3780,3781', // total advising
                       '42077' // staff outlook spaces
                   ];
+    
   // All Springshare and Outlook reservable space names listed to use for padding out future dates to refer patrons to the LibCal website
   let springshareLocations = [
       "Brown 145", "Brown 147", "Brown 148", "Brown 152", "Brown 155", "Brown 156", "Brown G-046",
@@ -47,51 +48,54 @@ exports.handler = (event, context, callback) => {
       return theDate.plus({days: numDaysOut}).toFormat("yyyy-MM-dd");
   }
   
+  function formatDate(date) {
+    return date.setZone('America/New_York').toFormat("yyyy-MM-dd HH:mm");
+  }
   // parse the data returned from the Springshare space/bookings API call and push it onto the global json_file object
   function parseSpringshareBookingData(events) {
-      for (let i = 0; i < events.length; i++) {
-        // make sure the category has nicknames enabled before attempting to access events otherwise an error will occur
-        if (events[i].nickname) {
-          let evt = events[i];
-          let location = evt.item_name;
-          // adjust location and event names for Scholars Lab common 308 spaces
-          if (evt.item_name.includes('Common Room') || evt.item_name.includes('Presentation Space') || evt.item_name.includes('Training Workstations') || evt.item_name.includes('VR Space')) {
-            location = 'Common Room (Rm 308)';
-            if (evt.item_name.includes('Common Room')) {
-              evt.nickname += ' (located in entire Common Room 308)';
-            } else {
-              evt.nickname += ' (located in ' + evt.item_name + ')';
-            }
-          }
-          let startDt = DateTime.fromISO(evt.fromDate);
-          let startDate = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd HH:mm"); //startDt.toLocaleDateString('en-CA') + ' ' + startDt.toLocaleTimeString('en-US',timeOptions);
-          let endDt = DateTime.fromISO(evt.toDate);
-          let endDate = endDt.setZone('America/New_York').toFormat("yyyy-MM-dd HH:mm"); //endDt.toLocaleDateString('en-CA') + ' ' + endDt.toLocaleTimeString('en-US',timeOptions);
-          // LibCal for reserving after midnight in location that is open from mid-day overnight to next morning.
-          if (startDate.includes("24:")) {
-              startDate = startDate.replace("24:", "00:");
-              if (endDate.includes("24:")) {
-                  endDate = endDate.replace("24:","00:");
-              }
-              json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate, roomName: location, status: "confirmed" });
-          // for an event that ends at midnight
-          } else if (endDate.includes("24:00")) {
-              let endDate1 = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 23:59';
-              json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate1, roomName: location, status: "confirmed" });
-          // for an event that runs past midnight two events need to be created as Visix doesn't support events spanning a day
-          } else if (endDate.includes("24:") || (endDt.toISODate() !== startDt.toISODate())) {
-              let endDate1 = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 23:59';
-              let startDate2 = endDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 00:00';
-              let endDate2 = endDate.replace("24:", "00:");
-              json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate1, roomName: location, status: "confirmed" });
-              if (startDate2 !== endDate2) {
-                json_file.event.push({ name: evt.nickname, startTime: startDate2, endTime: endDate2, roomName: location, status: "confirmed" });
-              }
+    events.forEach(evt => {
+      if (evt.nickname) {
+        let location = evt.item_name;
+        // adjust location and event names for Scholars Lab common 308 spaces
+        if (evt.item_name.includes('Common Room') || evt.item_name.includes('Presentation Space') || evt.item_name.includes('Training Workstations') || evt.item_name.includes('VR Space')) {
+          location = 'Common Room (Rm 308)';
+          if (evt.item_name.includes('Common Room')) {
+            evt.nickname += ' (located in entire Common Room 308)';
           } else {
-              json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate, roomName: location, status: "confirmed" });
+            evt.nickname += ' (located in ' + evt.item_name + ')';
           }
         }
-      } // for i
+
+        const startDt = DateTime.fromISO(evt.fromDate);
+        const endDt = DateTime.fromISO(evt.toDate);
+        let startDate = formatDate(startDt);
+        let endDate = formatDate(endDt);
+
+        // LibCal for reserving after midnight in location that is open from mid-day overnight to next morning.
+        if (startDate.includes("24:")) {
+          startDate = startDate.replace("24:", "00:");
+          if (endDate.includes("24:")) {
+            endDate = endDate.replace("24:", "00:");
+          }
+          json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate, roomName: location, status: "confirmed" });
+        // for an event that ends at midnight
+        } else if (endDate.includes("24:00")) {
+          let endDate1 = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 23:59';
+          json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate1, roomName: location, status: "confirmed" });
+        // for an event that runs past midnight two events need to be created as Visix doesn't support events spanning a day
+        } else if (endDate.includes("24:") || (endDt.toISODate() !== startDt.toISODate())) {
+          let endDate1 = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 23:59';
+          let startDate2 = endDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 00:00';
+          let endDate2 = endDate.replace("24:", "00:");
+          json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate1, roomName: location, status: "confirmed" });
+          if (startDate2 !== endDate2) {
+            json_file.event.push({ name: evt.nickname, startTime: startDate2, endTime: endDate2, roomName: location, status: "confirmed" });
+          }
+        } else {
+          json_file.event.push({ name: evt.nickname, startTime: startDate, endTime: endDate, roomName: location, status: "confirmed" });
+        }
+      }
+    });
   }
     
   // creates all day events in the future that point folks to look at LibCal
