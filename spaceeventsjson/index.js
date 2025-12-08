@@ -1,4 +1,4 @@
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context, callback) => {
   const axios = require('axios');
   const json_file = { event: [] };
   const { DateTime } = require("luxon");
@@ -97,188 +97,78 @@ exports.handler = (event, context, callback) => {
       }
     });
   }
-    
-  // creates all day events in the future that point folks to look at LibCal
-  function padDaysOut(locations, theDate, numDays, eventName) {
-      for (let j=0; j < locations.length; j++) {
-        for (let k=0; k < numDays; k++) {
-          // create future dates for LibCal spaces
-          let nextDay = DateTime.fromISO(theDate).plus({days: k});
-          let tomorrowStart = nextDay.toFormat("yyyy-MM-dd") + ' 00:00';
-          let tomorrowEnd = nextDay.toFormat("yyyy-MM-dd") + ' 23:59';
-          json_file.event.push({ name: eventName, startTime: tomorrowStart, endTime: tomorrowEnd, roomName: locations[j], status: "confirmed" });
-        }
-      }
-  }
-  
-  // authentication for EMS API access
-  let emsAuth = { 
-      'clientID': process.env.ems_api_id,
-      'secret': process.env.ems_api_secret
-  };
 
-  // authentication for Springshare API access
-  let springshareAuth = {
-      'client_id': process.env.client_id,
-      'client_secret': process.env.client_secret,
-      'grant_type': 'client_credentials' 
-  };
-          
-  axios.post('http://lb-ems.eservices.virginia.edu/EmsPlatform/api/v1/clientauthentication/', emsAuth)
-  .then((res) => {
-      let token = res.data.clientToken;
-      let config = { headers: { 'x-ems-api-token': token } };
-      let today = (new Date()).toISOString().split('T')[0] + 'T00:00:00Z';
-      let data = {
-          'userBookingsOnly': false,
-          'minReserveStartTime': today,
-          'roomIds': roomIdArray
-      };
-      axios.post('http://lb-ems.eservices.virginia.edu/EmsPlatform/api/v1/bookings/actions/search?pageSize=2000' , data, config)
-      .then((res) => {
-          let data = res.data;
-          let results = data.results;
-          // Loop through each room ID to get its events from the results.
-          for (let i = 0; i < roomIdArray.length; i++) {
-              // loop through the results to retrieve all the events for all EMS rooms
-              for (let j = 0; j < results.length; j++) {
-                  if (roomIdArray[i] == results[j].room.id) {
-                      let eventInfo = results[j].eventName + ' / ' + results[j].group.name;
-                      let startDt = DateTime.fromISO(results[j].eventStartTime);
-                      let startDate = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd HH:mm");
-                      let endDt = DateTime.fromISO(results[j].eventEndTime);
-                      let endDate = endDt.setZone('America/New_York').toFormat("yyyy-MM-dd HH:mm");
-                      // for an event that ends at midnight
-                      if (endDate.includes("24:00")) {
-                          let endDate1 = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 23:59';
-                          json_file.event.push({ name: eventInfo, startTime: startDate, endTime: endDate1, roomName: results[j].room.description, status: "confirmed" });
-                      // for an event that runs past midnight two events need to be created as Visix doesn't support events spanning a day
-                      } else if (endDate.includes("24:") || (endDt.toISODate() !== startDt.toISODate())) {
-                          let endDate1 = startDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 23:59';
-                          let startDate2 = endDt.setZone('America/New_York').toFormat("yyyy-MM-dd") + ' 00:00';
-                          let endDate2 = endDate.replace("24:", "00:");
-                          json_file.event.push({ name: eventInfo, startTime: startDate, endTime: endDate1, roomName: results[j].room.description, status: "confirmed" });
-                          if (startDate2 !== endDate2) {
-                              json_file.event.push({ name: eventInfo, startTime: startDate2, endTime: endDate2, roomName: results[j].room.description, status: "confirmed" });
-                          }
-                      } else {
-                          json_file.event.push({ name: eventInfo, startTime: startDate, endTime: endDate, roomName: results[j].room.description, status: "confirmed" });
-                      }
-                  }
-              } // for j
-          } // for i
-      })    
-      .then(function() {
-          // oAuth for LibCal API
-          axios.post('https://cal.lib.virginia.edu/1.1/oauth/token', springshareAuth)
-          .then((res) => {
-            let access_token = res.data.access_token;
-            const config = {
-              headers: {
-                Authorization: `Bearer ${access_token}`
-              }
-            }
-            // get today for brown
-            axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[0], config)
-            .then((res) => {
-              //console.log('brown');
-              let events = res.data;
-              if (events.length > 0) {
-                parseSpringshareBookingData(events);
-              }
-              // get today for main
-              axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[1], config)
-              .then((res) => {
-                //console.log('main');
-                let events = res.data;
-                if (events.length > 0) {
-                  parseSpringshareBookingData(events);
-                }
-                // get today for rmc/dml
-                axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[2], config)
-                .then((res) => {
-                  //console.log('rmc/dml');
-                  let events = res.data;
-                  if (events.length > 0) {
-                    parseSpringshareBookingData(events);
-                  }
-                  // get today for fine arts
-                  axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[3], config)
-                  .then((res) => {
-                    //console.log('fine arts');
-                    let events = res.data;
-                    if (events.length > 0) {
-                      parseSpringshareBookingData(events);
-                    }
-                    // get today for music
-                    axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid='+spaceCategoryIDs[4], config)
-                    .then((res) => {
-                      //console.log('music');
-                      let events = res.data;
-                      if (events.length > 0) {
-                        parseSpringshareBookingData(events);
-                      }
-                      // get today for scholars lab
-                      axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?days=1&limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[5], config)
-                      .then((res) => {
-                        //console.log('scholars lab');
-                        let events = res.data;
-                        if (events.length > 0) {
-                          parseSpringshareBookingData(events);
-                        }
-                        // get today for staff outlook spaces
-                        axios.get('https://cal.lib.virginia.edu/1.1/space/bookings?limit=500&include_remote=1&include_tentative=1&include_cancel=0&cid='+spaceCategoryIDs[7], config)
-                        .then((res) => {
-                          //console.log('staff outlook');
-                          let events = res.data;
-                          if (events.length > 0) {
-                            parseSpringshareBookingData(events);
-                          }
-                          let eventName = "See https://cal.lib.virginia.edu/ for this date's schedule";
-                          let lastDateWithEvents = getFutureDateString(2);
-                          //console.log("Springshare: "+lastDateWithEvents);
-                          padDaysOut(springshareLocations,lastDateWithEvents,88,eventName);
-                          eventName = "See Outlook calendar for this date's schedule";
-                          lastDateWithEvents = getFutureDateString(1);
-                          //console.log("Outlook: "+lastDateWithEvents);
-                          padDaysOut(outlookLocations,lastDateWithEvents,89,eventName);
-                          //console.log(JSON.stringify(json_file));
-                          // return JSON data for events for all EMS and LibCal spaced referenced.
-                          callback(null, json_file);
-                        })
-                        .catch((err) => {
-                          console.error(err);
-                        }); // end staff outlook spaces
-                      })
-                      .catch((err) => {
-                        console.error(err);
-                      }); // end scholars lab spaces
-                    })
-                    .catch((err) => {
-                      console.error(err);
-                    }); // end music spaces
-                  })
-                  .catch((err) => {
-                    console.error(err);
-                  }); // end fine arts spaces
-                })
-                .catch((err) => {
-                  console.error(err);
-                }); // end main spaces
-              })
-              .catch((err) => {
-                console.error(err);
-              }) // end brown spaces
-            })
-            .catch((err) => {
-              console.error(err);
-            });
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+  try {
+    // Authenticate with EMS API
+    let emsAuth = {
+      clientID: process.env.ems_api_id,
+      secret: process.env.ems_api_secret
+    };
+
+    const emsAuthResponse = await axios.post(`${process.env.ems_api_url}/clientauthentication/`, emsAuth);
+    const emsToken = emsAuthResponse.data.clientToken;
+
+    const emsConfig = { headers: { 'x-ems-api-token': emsToken } };
+    const today = DateTime.now().toISODate() + 'T00:00:00Z';
+
+    const emsData = {
+      userBookingsOnly: false,
+      minReserveStartTime: today,
+      roomIds: roomIdArray
+    };
+
+    const emsResponse = await axios.post(`${process.env.ems_api_url}/bookings/actions/search?pageSize=2000`, emsData, emsConfig);
+    const emsResults = emsResponse.data.results;
+
+    emsResults.forEach(result => {
+      const eventInfo = `${result.eventName} / ${result.group.name}`;
+      const startDt = DateTime.fromISO(result.eventStartTime);
+      const endDt = DateTime.fromISO(result.eventEndTime);
+      let startDate = formatDate(startDt);
+      let endDate = formatDate(endDt);
+
+      if (endDate.includes("24:00")) {
+        endDate = `${startDt.toFormat("yyyy-MM-dd")} 23:59`;
+      }
+
+      json_file.event.push({
+        name: eventInfo,
+        startTime: startDate,
+        endTime: endDate,
+        roomName: result.room.description,
+        status: "confirmed"
       });
-  }).catch((err) => {
-      console.error(err);
-  });
+    });
+
+    // Authenticate with LibCal API
+    const libCalAuth = {
+      client_id: process.env.visix_libcal_client_id,
+      client_secret: process.env.visix_libcal_client_secret,
+      grant_type: 'client_credentials'
+    };
+
+    const libCalAuthResponse = await axios.post(`${process.env.springshare_libcal_api_url}/oauth/token`, libCalAuth);
+    const libCalToken = libCalAuthResponse.data.access_token;
+
+    const libCalConfig = {
+      headers: { Authorization: `Bearer ${libCalToken}` }
+    };
+
+    // Fetch bookings for up to 14 days
+    for (const categoryID of spaceCategoryIDs) {
+      const libCalResponse = await axios.get(
+        `${process.env.springshare_libcal_api_url}/space/bookings?days=14&limit=500&include_remote=1&include_cancel=0&include_tentative=0&cid=${categoryID}`,
+        libCalConfig
+      );
+
+      if (libCalResponse.data.length > 0) {
+        parseSpringshareBookingData(libCalResponse.data);
+      }
+    }
+
+    callback(null, json_file);
+  } catch (error) {
+    console.error(error);
+    callback(error);
+  }
 };
