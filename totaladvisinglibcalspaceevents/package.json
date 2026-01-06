@@ -1,6 +1,6 @@
 {
   "name": "totaladvisinglibcalspaceevents",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "lambda function for getting total advising space event nickname content into icalendar format",
   "main": "index.js",
   "scripts": {},
@@ -17,8 +17,8 @@
     "type": "git",
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
+  "engines": {"node" : ">=24 <25"},
   "dependencies": {
-    "ical-generator": "^3.5.1",
-    "request": "^2.88.0"
+    "ical-generator": "^3.6.1"
   }
 }

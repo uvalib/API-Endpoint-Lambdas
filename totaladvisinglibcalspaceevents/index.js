@@ -1,68 +1,93 @@
-exports.handler = (event, context, callback) => {
-    var request = require('request'),
-        ical = require('ical-generator'),
-        company_name = 'UVA Library',
-        product_name = 'AWS Lambda',
-        space_ics_files = new Array();
-    // oAuth for LibCal API
-    request({
-        url: 'https://cal.lib.virginia.edu/1.1/oauth/token',
-        method: 'POST',
-        form: {
-            'client_id': process.env.client_id,
-            'client_secret': process.env.client_secret,
-            'grant_type': 'client_credentials'
-        }
-    }, function(err, res) {
-        if (err) return callback(err);
-        // Save access token for Springshare API calls
-        var json = JSON.parse(res.body);
-        var access_token = json.access_token;
-        // Make Spaces API call for desired location Spaces
-        // Space category identifiers are configured in the mapping template for each space location. 
-        request({
-            url: 'https://cal.lib.virginia.edu/1.1/space/nickname/' + event['query']['spaceCategories'],
-            method: 'GET',
-            auth: {
-                'bearer': access_token
-            }
-        }, function(err, res) {
-            if (err) return callback(err);
-            var data = JSON.parse(res.body);
-            var categories = data[0].categories;
-            // loop through categories, aka grouped spaces
-            for (var i = 0; i < categories.length; i++) {
-                var grp_name = categories[i].name.substring(0, categories[i].name.length - 1);
-                // loop through spaces to get events and generate ics file content for each
-                for (var j = 0; j < categories[i].spaces.length; j++) {
-                    var room_num = categories[i].spaces[j].name.replace(/\D/g, '');
-                    // if the room does not have a number then replace spaces in string with hyphens
-                    room_num = (room_num != '') ? room_num : categories[i].spaces[j].name.replace(/ /g, '-');                    
-                    var location = categories[i].spaces[j].name;
-                    var room_name = location + ' ' + grp_name;
-                    var ics_file = ical({
-                        name: room_name,
-                        prodId: { company: company_name, product: product_name },
-                        method: 'publish'
-                    });
-                    ics_file.ttl(60 * 30); //time to live of 30 minutes (same as API cache and Springshare)
-                    categories[i].spaces[j].bookings.forEach(function(evt, index, init_array) {
-                        ics_file.createEvent({ summary: evt.nickname, start: evt.start, end: evt.end, timestamp: evt.created, location: room_name });
-                    });
-                    //console.log(ics_file.toString());
-                    space_ics_files.push({ room: room_num, data: ics_file.toString() });
-                } // for j
-            } // for i
-            // if the API call passes the room parameter, then use the code below to
-            // retreive the desired ics data to return.
-            //space_ics_files.forEach(function(space, index, init_array) {
-            //  if (space.room == event.room) {
-            //    callback(space.data, 'Success');
-            //  }
-            //});
-            // callback should return the space_ics_files dataset and then the API call using this
-            // Lambda function should retrieve the appropriate room data and return it.
-            callback(null, space_ics_files);
+
+const ical = require('ical-generator');
+
+const COMPANY_NAME = 'UVA Library';
+const PRODUCT_NAME = 'AWS Lambda';
+
+exports.handler = (event) => {
+  const spaceCategories = event?.query?.spaceCategories;
+  if (!spaceCategories) {
+    return Promise.reject(new Error("Missing 'query.spaceCategories' in event input"));
+  }
+  console.log(`Fetching spaces for categories: ${spaceCategories}`);
+  // === 1) Get OAuth token ===
+  const tokenUrl = 'https://cal.lib.virginia.edu/1.1/oauth/token';
+  const tokenBody = new URLSearchParams({
+    client_id: process.env.client_id,
+    client_secret: process.env.client_secret,
+    grant_type: 'client_credentials'
+  });
+
+  return fetch(tokenUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: tokenBody
+  })
+    .then((tokenResp) => {
+      if (!tokenResp.ok) {
+        return tokenResp.text().then((msg) => {
+          throw new Error(`OAuth token request failed: ${tokenResp.status} ${msg}`);
         });
+      }
+      return tokenResp.json();
+    })
+    .then((tokenJson) => {
+      const access_token = tokenJson.access_token;
+
+      // === 2) Fetch Spaces data ===
+      const spacesUrl = `https://cal.lib.virginia.edu/1.1/space/nickname/${spaceCategories}`;
+      console.log(`Fetching spaces from URL: ${spacesUrl}`);
+      return fetch(spacesUrl, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+    })
+    .then((spacesResp) => {
+      if (!spacesResp.ok) {
+        return spacesResp.text().then((msg) => {
+          throw new Error(`Spaces request failed: ${spacesResp.status} ${msg}`);
+        });
+      }
+      return spacesResp.json();
+    })
+    .then((data) => {
+      const categories = data[0]?.categories || [];
+      const space_ics_files = [];
+
+      categories.forEach((category) => {
+        const grp_name = category.name.substring(0, category.name.length - 1);
+
+        category.spaces.forEach((space) => {
+          let room_num = space.name.replace(/\D/g, '');
+          room_num = room_num !== '' ? room_num : space.name.replace(/ /g, '-');
+
+          const room_name = `${space.name} ${grp_name}`;
+          const ics_file = ical({
+            name: room_name,
+            prodId: { company: COMPANY_NAME, product: PRODUCT_NAME },
+            method: 'publish'
+          });
+
+          ics_file.ttl(60 * 30); // 30 min TTL
+
+          space.bookings.forEach((evt) => {
+            ics_file.createEvent({
+              summary: evt.nickname,
+              start: evt.start,
+              end: evt.end,
+              timestamp: evt.created,
+              location: room_name
+            });
+          });
+
+          space_ics_files.push({ room: room_num, data: ics_file.toString() });
+        });
+      });
+      //console.log(space_ics_files);
+      return space_ics_files;
+    })
+    .catch((err) => {
+      console.error('Lambda error:', err);
+      throw err; // Propagate error for Lambda to mark invocation as failed
     });
 };
