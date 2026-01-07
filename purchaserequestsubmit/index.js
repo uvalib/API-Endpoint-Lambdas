@@ -191,70 +191,62 @@ exports.handler = (event) => {
         return Object.keys(obj).map(key => key + '=' + encodeURIComponent(obj[key])).join('&');
     };
 
-    // Post the email objects to our server for sending and post the form data to LibInsight.
-    const postEmailAndData = function(reqId, requestEmailOptions, confirmEmailOptions, formData) {
-        mailTransporter.verify((error, success) => {
-            if (error) {
-                console.log('Problem with SMTP server connection...');
-                console.log(error.toString());
-                return error;
-            } else {
-                mailTransporter.sendMail(requestEmailOptions).then(info => {
-                    console.log('request email sent, id='+info.messageId);
-                    mailTransporter.sendMail(confirmEmailOptions).then(info => {
-                        console.log('confirmation email sent, id='+info.messageId);
-                        console.log(`Library purchase request notifications sent for ${reqId}`);
-                        // Authenticate to LibInsight API to get OAuth token
-                        return fetch(tokenUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: tokenBody
-                          })
-                            .then((tokenResp) => {
-                              if (!tokenResp.ok) {
-                                return tokenResp.text().then((msg) => {
-                                  throw new Error(`OAuth token request failed: ${tokenResp.status} ${msg}`);
-                                });
-                              }
-                              return tokenResp.json();
-                            })
-                            .then((tokenJson) => {
-                              const access_token = tokenJson.access_token;
-                        
-                              // Write data to LibInsight dataset
-                              const apiUrl = `${process.env.springshare_libinsight_api_url}/custom-dataset/15512/save`;
-                              return fetch(apiUrl, {
-                                method: 'POST',
-                                headers: { ...headerObj, Authorization: `Bearer ${access_token}` },
-                                body: JSON.stringify([formData])
-                              })
-                              .then((apiResp) => {
-                                if (!apiResp.ok) {
-                                    return apiResp.text().then((msg) => {
-                                        console.log(`LibInsight data save request failed for ${reqId}: ${apiResp.status} ${msg}`);
-                                        throw new Error(`LibInsight data save request failed: ${apiResp.status} ${msg}`)
-                                    })
-                                }
-                                console.log(`LibInsight data saved for ${reqId}`);
-                                return apiResp.json();
-                              });
-                            });
-                    }).catch(error => {
-                        console.log(`Library confirmation notification failed for ${reqId}`);
-                        console.log(error.toString());
-                        return error;
-                    });
-                }).catch(error => {
-                    console.log(`Library request notification failed for ${reqId}`);
-                    return error;
+    const postEmailAndData = function (reqId, requestEmailOptions, confirmEmailOptions, formData) {
+        // Use promise interface for verify and sendMail (no callback → returns Promise)
+        return mailTransporter.verify()
+        .then(() => {
+            return mailTransporter.sendMail(requestEmailOptions);
+        })
+        .then(info => {
+            console.log('request email sent, id=' + info.messageId);
+            return mailTransporter.sendMail(confirmEmailOptions);
+        })
+        .then(info => {
+            console.log('confirmation email sent, id=' + info.messageId);
+            // OAuth token request (URL-encoded body is correct for client_credentials)
+            return fetch(tokenUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: tokenBody // URLSearchParams instance
+            });
+        })
+        .then(tokenResp => {
+            if (!tokenResp.ok) {
+                return tokenResp.text().then(msg => {
+                throw new Error(`OAuth token request failed: ${tokenResp.status} ${msg}`);
                 });
             }
+            return tokenResp.json();
+        })
+        .then(tokenJson => {
+            const access_token = tokenJson.access_token;
+            const apiUrl = `${process.env.springshare_libinsight_api_url}/custom-dataset/15512/save`;
+            // IMPORTANT: send JSON with application/json
+            return fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${access_token}` },
+                body: JSON.stringify([formData])
+            });
+        })
+        .then(apiResp => {
+            if (!apiResp.ok) {
+                return apiResp.text().then(msg => {
+                console.log(`LibInsight data save request failed for ${reqId}: ${apiResp.status} ${msg}`);
+                throw new Error(`LibInsight data save request failed: ${apiResp.status} ${msg}`);
+                });
+            }
+            console.log(`LibInsight data saved for ${reqId}`);
+            return apiResp.json();
+        })
+        .catch(err => {
+            // One catch to log any error in the chain (SMTP or HTTP)
+            console.error(`postEmailAndData failed for ${reqId}:`, err);
+            throw err; // rethrow so Lambda sees a failed invocation
         });
     };
         
     // Make sure the form submission POST data is a JSON object.
     const pData = event;
-
 
     // Verify that their field defined for the form before attempting to do anything
     if (pData.fields.length && (pData.fields.length > 0)) {
@@ -1005,5 +997,6 @@ exports.handler = (event) => {
         // **PURCHASE RECOMMENDATION FORM END
     } else {
         console.log(`Warning: ${FORMNAME} form submission without any fields in it.`);
+        return Promise.resolve({ success: false, message: 'No form fields found' });
     }
 };
