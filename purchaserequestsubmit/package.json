@@ -1,6 +1,6 @@
 {
   "name": "purchaserequestsubmit",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "lambda function for processing a LibWizard Purchase Recommendation form submission",
   "main": "index.js",
   "scripts": {},
@@ -18,9 +18,9 @@
     "type": "git",
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
+  "engines": {"node" : ">=24 <25"},
   "dependencies": {
-    "node-fetch": "^2.6.7",
-    "nodemailer": "^6.9.7",
-    "string-strip-html": "^4.5.1"
+    "nodemailer": "^7.0.12",
+    "string-strip-html": "^8.5.0"
   }
 }
