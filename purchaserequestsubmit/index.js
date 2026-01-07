@@ -185,57 +185,48 @@ exports.handler = (event, context, callback) => {
         return Object.keys(obj).map(key => key + '=' + encodeURIComponent(obj[key])).join('&');
     };
 
-    const postEmailAndData = function (reqId, requestEmailOptions, confirmEmailOptions, formData) {
-        // Use promise interface for verify and sendMail (no callback → returns Promise)
-        return mailTransporter.verify()
-        .then(() => {
-            return mailTransporter.sendMail(requestEmailOptions);
-        })
-        .then(info => {
-            console.log('request email sent, id=' + info.messageId);
-            return mailTransporter.sendMail(confirmEmailOptions);
-        })
-        .then(info => {
-            console.log('confirmation email sent, id=' + info.messageId);
-            // OAuth token request (URL-encoded body is correct for client_credentials)
-            return fetch(tokenUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: tokenBody // URLSearchParams instance
-            });
-        })
-        .then(tokenResp => {
-            if (!tokenResp.ok) {
-                return tokenResp.text().then(msg => {
-                throw new Error(`OAuth token request failed: ${tokenResp.status} ${msg}`);
+    // Post the email objects to our server for sending and post the form data to LibInsight.
+    const postEmailAndData = function(reqId, requestEmailOptions, confirmEmailOptions, formData) {
+        mailTransporter.verify((error, success) => {
+            if (error) {
+                console.log('Problem with SMTP server connection...');
+                console.log(error.toString());
+                return error;
+            } else {
+                mailTransporter.sendMail(requestEmailOptions).then(info => {
+                    console.log('request email sent, id='+info.messageId);
+                    mailTransporter.sendMail(confirmEmailOptions).then(info => {
+                        console.log('confirmation email sent, id='+info.messageId);
+                        console.log(`Library purchase request notifications sent for ${reqId}`);
+                        let queryString = paramsString(formData);
+                        nodeFetch(apiUrl, { method: 'POST', body: queryString, headers: headerObj })
+                        .then(res => res.text())
+                        .then(body => {
+                            if (body) {
+                                const result = JSON.parse(body);
+                                if (result.response) {
+                                    console.log(`LibInsight data saved for ${reqId}`);
+                                }
+                            } else {
+                                console.log(`Bad response from ${apiUrl}: `+body);
+                                throw new Error(`Bad response from ${apiUrl}: `+body);
+                            }
+                        })
+                        .catch(error => function(error) {
+                            console.log(`Error for request ${reqId}: `);
+                            console.log(error);
+                            return error;
+                        });
+                    }).catch(error => {
+                        console.log(`Library confirmation notification failed for ${reqId}`);
+                        console.log(error.toString());
+                        return error;
+                    });
+                }).catch(error => {
+                    console.log(`Library request notification failed for ${reqId}`);
+                    return error;
                 });
             }
-            return tokenResp.json();
-        })
-        .then(tokenJson => {
-            const access_token = tokenJson.access_token;
-            const apiUrl = `${process.env.springshare_libinsight_api_url}/custom-dataset/15512/save`;
-            // IMPORTANT: send JSON with application/json
-            return fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${access_token}` },
-                body: JSON.stringify([formData])
-            });
-        })
-        .then(apiResp => {
-            if (!apiResp.ok) {
-                return apiResp.text().then(msg => {
-                console.log(`LibInsight data save request failed for ${reqId}: ${apiResp.status} ${msg}`);
-                throw new Error(`LibInsight data save request failed: ${apiResp.status} ${msg}`);
-                });
-            }
-            console.log(`LibInsight data saved for ${reqId}`);
-            return apiResp.json();
-        })
-        .catch(err => {
-            // One catch to log any error in the chain (SMTP or HTTP)
-            console.error(`postEmailAndData failed for ${reqId}:`, err);
-            throw err; // rethrow so Lambda sees a failed invocation
         });
     };
         
@@ -325,7 +316,7 @@ exports.handler = (event, context, callback) => {
             courseInfo += "\n<h3>Course Information</h3>\n\n<p>";
             // Currently no library location field exists on the purchase form so this field doesn't need to get populated since not required in LibInsight
             // data['field_655'] = 'library location value goes here';
-            let courseTerm = pData.fields.find(t=>t.field_id === 4512624).val;
+            courseTerm = pData.fields.find(t=>t.field_id === 4512624).val;
             courseInfo += "<strong>Term:</strong> " + courseTerm + "<br>\n";
             data['field_648'] = courseTerm;
             let course = pData.fields.find(t=>t.field_id === 4512628) ? pData.fields.find(t=>t.field_id === 4512628).val : '';
@@ -974,7 +965,7 @@ exports.handler = (event, context, callback) => {
         libraryOptions.text = stripHtml(adminMsg + biblioInfo + requestorInfo + courseInfo + reqText);
     
         // Prepare email confirmation content for patron
-        patronOptions.subject = (forCourseReserves && (forCourseReserves === "Yes")) ? 'Reserve ' : '';
+        patronOptions.subject = (forCourseReserves && (forCourseReserves === "Yes")) ? courseTerm + ' Reserve ' : '';
         patronOptions.subject += 'Purchase Recommendation';
         patronOptions.to = emailAddress;
         patronOptions.html = patronMsg + biblioInfo + requestorInfo + courseInfo + reqText;
@@ -989,7 +980,6 @@ exports.handler = (event, context, callback) => {
         }
         // **PURCHASE RECOMMENDATION FORM END
     } else {
-        console.log(`Warning: ${FORMNAME} form submission without any fields in it.`);
-        return Promise.resolve({ success: false, message: 'No form fields found' });
+        console.log(`Warning: ${formName} form submission without any fields in it.`);
     }
 };
