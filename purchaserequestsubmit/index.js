@@ -1,19 +1,13 @@
-const nodeMailer = require("nodemailer");
-const { stripHtml } = require('string-strip-html');
+exports.handler = (event, context, callback) => {
 
-const FORMNAME = 'Purchase Recommendation';
-
-exports.handler = (event) => {
-
+    const formName = 'Purchase Recommendation';
+    const nodeFetch = require('node-fetch');
+    const nodeMailer = require("nodemailer");
+    const stripHtml = require('string-strip-html');
     const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
 
-    // Environment variables configured for use with LibInsight API.
-    const tokenUrl = `${process.env.springshare_libinsight_api_url}/oauth/token`;
-    const tokenBody = new URLSearchParams({
-        client_id: process.env.springshare_libinsight_client_id,
-        client_secret: process.env.springshare_libinsight_client_secret,
-        grant_type: 'client_credentials'
-    });
+    // Environment variables configured for use with sending emails and saving data to LibInsight for forms.
+    const apiUrl = process.env.purchase_rec_api_url; 
     
     // SMTP mail server settings
     const smtpServer = {
@@ -204,41 +198,25 @@ exports.handler = (event) => {
                     mailTransporter.sendMail(confirmEmailOptions).then(info => {
                         console.log('confirmation email sent, id='+info.messageId);
                         console.log(`Library purchase request notifications sent for ${reqId}`);
-                        // Authenticate to LibInsight API to get OAuth token
-                        return fetch(tokenUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: tokenBody
-                          })
-                            .then((tokenResp) => {
-                              if (!tokenResp.ok) {
-                                return tokenResp.text().then((msg) => {
-                                  throw new Error(`OAuth token request failed: ${tokenResp.status} ${msg}`);
-                                });
-                              }
-                              return tokenResp.json();
-                            })
-                            .then((tokenJson) => {
-                              const access_token = tokenJson.access_token;
-                        
-                              // Write data to LibInsight dataset
-                              const apiUrl = `${process.env.springshare_libinsight_api_url}/custom-dataset/15512/save`;
-                              return fetch(apiUrl, {
-                                method: 'POST',
-                                headers: { ...headerObj, Authorization: `Bearer ${access_token}` },
-                                body: JSON.stringify([formData])
-                              })
-                              .then((apiResp) => {
-                                if (!apiResp.ok) {
-                                    return apiResp.text().then((msg) => {
-                                        console.log(`LibInsight data save request failed for ${reqId}: ${apiResp.status} ${msg}`);
-                                        throw new Error(`LibInsight data save request failed: ${apiResp.status} ${msg}`)
-                                    })
+                        let queryString = paramsString(formData);
+                        nodeFetch(apiUrl, { method: 'POST', body: queryString, headers: headerObj })
+                        .then(res => res.text())
+                        .then(body => {
+                            if (body) {
+                                const result = JSON.parse(body);
+                                if (result.response) {
+                                    console.log(`LibInsight data saved for ${reqId}`);
                                 }
-                                console.log(`LibInsight data saved for ${reqId}`);
-                                return apiResp.json();
-                              });
-                            });
+                            } else {
+                                console.log(`Bad response from ${apiUrl}: `+body);
+                                throw new Error(`Bad response from ${apiUrl}: `+body);
+                            }
+                        })
+                        .catch(error => function(error) {
+                            console.log(`Error for request ${reqId}: `);
+                            console.log(error);
+                            return error;
+                        });
                     }).catch(error => {
                         console.log(`Library confirmation notification failed for ${reqId}`);
                         console.log(error.toString());
@@ -255,10 +233,8 @@ exports.handler = (event) => {
     // Make sure the form submission POST data is a JSON object.
     const pData = event;
 
-
     // Verify that their field defined for the form before attempting to do anything
     if (pData.fields.length && (pData.fields.length > 0)) {
-        console.log(`Processing submission for form: ${pData.name} (ID: ${pData.formId})`);
         // **PURCHASE RECOMMENDATION FORM BEGIN
         let adminMsg = '';
         let courseInfo = '';
@@ -340,7 +316,7 @@ exports.handler = (event) => {
             courseInfo += "\n<h3>Course Information</h3>\n\n<p>";
             // Currently no library location field exists on the purchase form so this field doesn't need to get populated since not required in LibInsight
             // data['field_655'] = 'library location value goes here';
-            courseTerm = pData.fields.find(t=>t.field_id === 4512624).val;
+            let courseTerm = pData.fields.find(t=>t.field_id === 4512624).val;
             courseInfo += "<strong>Term:</strong> " + courseTerm + "<br>\n";
             data['field_648'] = courseTerm;
             let course = pData.fields.find(t=>t.field_id === 4512628) ? pData.fields.find(t=>t.field_id === 4512628).val : '';
@@ -923,7 +899,7 @@ exports.handler = (event) => {
         }
     
         // Prepare email content for Library staff
-        libraryOptions.subject = (forCourseReserves && (forCourseReserves === "Yes")) ? courseTerm + ' - Reserve ' : '';
+        libraryOptions.subject = (forCourseReserves && (forCourseReserves === "Yes")) ? courseTerm + ' Reserve ' : '';
         libraryOptions.subject += 'Purchase Recommendation ';
         libraryOptions.from = '"' + name + '" <' + emailAddress + '>';
         libraryOptions.replyTo = emailAddress;
@@ -986,14 +962,14 @@ exports.handler = (event) => {
         }
         let reqText = "<br>\n<br>\n<br>\n<strong>req #: </strong>" + reqId;
         libraryOptions.html = adminMsg + biblioInfo + requestorInfo + courseInfo + reqText;
-        libraryOptions.text = stripHtml(adminMsg + biblioInfo + requestorInfo + courseInfo + reqText).result;
+        libraryOptions.text = stripHtml(adminMsg + biblioInfo + requestorInfo + courseInfo + reqText);
     
         // Prepare email confirmation content for patron
-        patronOptions.subject = (forCourseReserves && (forCourseReserves === "Yes")) ? courseTerm + ' - Reserve ' : '';
+        patronOptions.subject = (forCourseReserves && (forCourseReserves === "Yes")) ? 'Reserve ' : '';
         patronOptions.subject += 'Purchase Recommendation';
         patronOptions.to = emailAddress;
         patronOptions.html = patronMsg + biblioInfo + requestorInfo + courseInfo + reqText;
-        patronOptions.text = stripHtml(patronMsg + biblioInfo + requestorInfo + courseInfo + reqText).result;
+        patronOptions.text = stripHtml(patronMsg + biblioInfo + requestorInfo + courseInfo + reqText);
     
         try {
             return postEmailAndData(reqId, libraryOptions, patronOptions, data);
@@ -1004,6 +980,6 @@ exports.handler = (event) => {
         }
         // **PURCHASE RECOMMENDATION FORM END
     } else {
-        console.log(`Warning: ${FORMNAME} form submission without any fields in it.`);
+        console.log(`Warning: ${formName} form submission without any fields in it.`);
     }
 };
