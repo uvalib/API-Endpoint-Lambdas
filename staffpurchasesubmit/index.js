@@ -1,22 +1,28 @@
-exports.handler = (event, context, callback) => {
+const nodeMailer = require("nodemailer");
+const { stripHtml } = require('string-strip-html');
 
-  const formName = 'Staff Purchase Request';
-  const nodeFetch = require('node-fetch');
-  const nodeMailer = require("nodemailer");
-  const stripHtml = require('string-strip-html');
+const FORMNAME = 'Staff Purchase Request';
+
+exports.handler = (event) => {
+
   const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
 
-  // Environment variables configured for use with sending emails and saving data to LibInsight for forms.
-  const apiUrl = process.env.staff_purch_req_api_url; 
+  // Environment variables configured for use with LibInsight API.
+  const tokenUrl = `${process.env.springshare_libinsight_api_url}/oauth/token`;
+  const tokenBody = new URLSearchParams({
+    client_id: process.env.springshare_libinsight_client_id,
+    client_secret: process.env.springshare_libinsight_client_secret,
+    grant_type: 'client_credentials'
+  });
 
   // SMTP mail server settings
   const smtpServer = {
     host: 'smtp.mail.virginia.edu',
     port: 465,
     secure: true      
-  }
+  };
   const mailTransporter = nodeMailer.createTransport(smtpServer);
-  
+
   // Initialize email info and objects.
   let libraryOptions = { from: '"UVA Library" <no-reply-library@Virginia.EDU>', replyTo: '',
       to: '', cc: '', bcc: '', subject: '', text: '', html: ''
@@ -184,49 +190,59 @@ exports.handler = (event, context, callback) => {
   };
 
   // Post the email objects to our server for sending and post the form data to LibInsight.
-  const postEmailAndData = function(reqId, requestEmailOptions, confirmEmailOptions, formData) {
-    mailTransporter.verify((error, success) => {
-        if (error) {
-            console.log('Problem with SMTP server connection...');
-            console.log(error.toString());
-            return error;
-        } else {
-            mailTransporter.sendMail(requestEmailOptions).then(info => {
-                console.log('request email sent, id='+info.messageId);
-                mailTransporter.sendMail(confirmEmailOptions).then(info => {
-                    console.log('confirmation email sent, id='+info.messageId);
-                    console.log(`Library purchase request notifications sent for ${reqId}`);
-                    let queryString = paramsString(formData);
-                    nodeFetch(apiUrl, { method: 'POST', body: queryString, headers: headerObj })
-                    .then(res => res.text())
-                    .then(body => {
-                        if (body) {
-                            const result = JSON.parse(body);
-                            if (result.response) {
-                                console.log(`LibInsight data saved for ${reqId}`);
-                            }
-                        } else {
-                            console.log(`Bad response from ${apiUrl}: `+body);
-                            throw new Error(`Bad response from ${apiUrl}: `+body);
-                        }
-                    })
-                    .catch(error => function(error) {
-                        console.log(`Error for request ${reqId}: `);
-                        console.log(error);
-                        return error;
-                    });
-                }).catch(error => {
-                    console.log(`Library confirmation notification failed for ${reqId}`);
-                    console.log(error.toString());
-                    return error;
-                });
-            }).catch(error => {
-                console.log(`Library request notification failed for ${reqId}`);
-                return error;
+    const postEmailAndData = function (reqId, requestEmailOptions, confirmEmailOptions, formData) {
+        // Use promise interface for verify and sendMail (no callback → returns Promise)
+        return mailTransporter.verify()
+        .then(() => {
+            return mailTransporter.sendMail(requestEmailOptions);
+        })
+        .then(info => {
+            console.log('request email sent, id=' + info.messageId);
+            return mailTransporter.sendMail(confirmEmailOptions);
+        })
+        .then(info => {
+            console.log('confirmation email sent, id=' + info.messageId);
+            // OAuth token request (URL-encoded body is correct for client_credentials)
+            return fetch(tokenUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: tokenBody // URLSearchParams instance
             });
-        }
-    });
-  };
+        })
+        .then(tokenResp => {
+            if (!tokenResp.ok) {
+                return tokenResp.text().then(msg => {
+                throw new Error(`OAuth token request failed: ${tokenResp.status} ${msg}`);
+                });
+            }
+            return tokenResp.json();
+        })
+        .then(tokenJson => {
+            const access_token = tokenJson.access_token;
+            const apiUrl = `${process.env.springshare_libinsight_api_url}/custom-dataset/22758/save`;
+            // IMPORTANT: send JSON with application/json
+            return fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${access_token}` },
+                body: JSON.stringify([formData])
+            });
+        })
+        .then(apiResp => {
+            if (!apiResp.ok) {
+                return apiResp.text().then(msg => {
+                console.log(`LibInsight data save request failed for ${reqId}: ${apiResp.status} ${msg}`);
+                throw new Error(`LibInsight data save request failed: ${apiResp.status} ${msg}`);
+                });
+            }
+            console.log(`LibInsight data saved for ${reqId}`);
+            return apiResp.json();
+        })
+        .catch(err => {
+            // One catch to log any error in the chain (SMTP or HTTP)
+            console.error(`postEmailAndData failed for ${reqId}:`, err);
+            throw err; // rethrow so Lambda sees a failed invocation
+        });
+    };
   
   // Make sure the form submission POST data is a JSON object.
   const pData = event;
@@ -845,13 +861,13 @@ exports.handler = (event, context, callback) => {
     
     let reqText = "<br>\n<br>\n<br>\n<strong>req #: </strong>" + reqId;
     libraryOptions.html = msg + biblioInfo + requestorInfo + otherPerson + reqText;
-    libraryOptions.text = stripHtml(msg + biblioInfo + requestorInfo + otherPerson + reqText);
+    libraryOptions.text = stripHtml(msg + biblioInfo + requestorInfo + otherPerson + reqText).result;
 
     // Prepare email confirmation content for staff
     patronOptions.subject = 'Staff Purchase Request';
     patronOptions.to = yourEmailAddress;
     patronOptions.html = msg + biblioInfo + requestorInfo + otherPerson + reqText;
-    patronOptions.text = stripHtml(msg + biblioInfo + requestorInfo + otherPerson + reqText);
+    patronOptions.text = stripHtml(msg + biblioInfo + requestorInfo + otherPerson + reqText).result;
 
     try {
         return postEmailAndData(reqId, libraryOptions, patronOptions, data);
@@ -863,6 +879,7 @@ exports.handler = (event, context, callback) => {
     // **STAFF PURCHASE REQUEST FORM BEGIN
  
   } else {
-      console.log(`Warning: ${formName} form submission without any fields in it.`);
+      console.log(`Warning: ${FORMNAME} form submission without any fields in it.`);
+      return Promise.resolve({ success: false, message: 'No form fields found' });
   }
 };
