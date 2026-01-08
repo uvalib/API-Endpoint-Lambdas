@@ -1,7 +1,6 @@
-exports.handler = async (event, context, callback) => {
+exports.handler = async (event) => {
 
   const formName = 'SC Class Visit and Instruction';
-  const nodeFetch = require('node-fetch');
   const headerObj = {'Content-Type': 'application/x-www-form-urlencoded'};
 
   // Environment variables configured for use with LibInsight API.
@@ -33,7 +32,7 @@ exports.handler = async (event, context, callback) => {
 
   // Get OAuth2 token.
   const getAuthToken = async () => {
-    const tokenResponse = await nodeFetch(tokenUrl, {
+    const tokenResponse = await fetch(tokenUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: paramsString({
@@ -57,7 +56,7 @@ exports.handler = async (event, context, callback) => {
       const token = await getAuthToken();
       const queryString = paramsString(formData);
 
-      const response = await nodeFetch(apiUrl, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         body: JSON.stringify([formData]),
         headers: {
@@ -69,9 +68,8 @@ exports.handler = async (event, context, callback) => {
       const body = await response.text();
       if (response.ok) {
         const result = JSON.parse(body);
-        if (result.response) {
-          console.log(`LibInsight data saved for ${reqId}: ` + body);
-        }
+        console.log(`LibInsight data saved for ${reqId}: ` + body);
+        return result.message;
       } else {
         console.log(`Bad response from ${apiUrl}: ` + body);
         throw new Error(`Bad response from ${apiUrl}: ` + body);
