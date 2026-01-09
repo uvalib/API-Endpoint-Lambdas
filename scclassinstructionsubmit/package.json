@@ -18,6 +18,7 @@
     "type": "git",
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
+  "engines": {"node" : ">=24 <25"},
   "dependencies": {
   }
 }
