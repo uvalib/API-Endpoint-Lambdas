@@ -94,7 +94,7 @@ function getCurrentTimeInTimeZone(timeZone) {
     return formattedDate;
 }
 
-exports.handler = async (event, context, callback) => {
+exports.handler = async (event) => {
     // Make sure the form submission POST data is a JSON object.
     const pData = event;
 
@@ -118,9 +118,13 @@ exports.handler = async (event, context, callback) => {
                 ];
 
                 try {
-                    await postDataToCustomDataset(clientId, clientSecret, datasetId, datasetType, records);
+                    return await postDataToCustomDataset(clientId, clientSecret, datasetId, datasetType, records);
                 } catch (error) {
                     console.error('Error in postDataToCustomDataset:', error);
+                    return { 
+                        statusCode: (error && error.response && error.response.status) ? error.response.status : 500, 
+                        body: JSON.stringify({ message: error.message }),
+                    };
                 }
             }
         }
