@@ -1,6 +1,6 @@
 {
   "name": "mkrsp-libauth-3dprinter",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "lambda function for reading data from LibInsight and returning a CSV text file",
   "main": "index.js",
   "scripts": {},
@@ -18,9 +18,7 @@
     "type": "git",
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
+  "engines": {"node" : ">=24 <25"},
   "dependencies": {
-  },
-  "devDependencies": {
-    "eslint": "^7.32.0"
   }
 }

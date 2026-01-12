@@ -1,8 +1,24 @@
+
 const clientDomain = process.env.libinsight_client_domain;
 const datasetId = process.env.libinsight_sl3d_printer_allow_list_dataset_id;
 const startDate = '2024-08-01'; // creation/initial use of the quiz
-const perPage = 100; // Number of records per page
-const maxRetries = 3; // Maximum number of retries for a failed request
+const maxRetries = 3; // Maximum number of retries for a failed fetch request; Springshare has a 5 request limit per second
+
+// --- Rate limit: 1 fetch per second ---
+let lastFetchTimeMs = 0;
+const RATE_LIMIT_INTERVAL_MS = 1000;
+
+/**
+ * Waits long enough so that we never perform more than one fetch per second.
+ */
+async function waitIfNeeded() {
+  const now = Date.now();
+  const elapsed = now - lastFetchTimeMs;
+  if (elapsed < RATE_LIMIT_INTERVAL_MS) {
+    await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_INTERVAL_MS - elapsed));
+  }
+  lastFetchTimeMs = Date.now();
+}
 
 // Function to get the access token
 const getAccessToken = async () => {
@@ -30,16 +46,22 @@ const getAccessToken = async () => {
 
 // Function to get records for a specific page and date range
 const getRecords = async (accessToken, fromDate, toDate, page) => {
+    // Enforce the 1 req/sec rate limit  
+    await waitIfNeeded();
     const recordsUrl = `https://${clientDomain}/v1.0/custom-dataset/${datasetId}/data-grid`;
 
-    const response = await fetch(`${recordsUrl}?from=${fromDate}&to=${toDate}&page=${page}&per_page=${perPage}`, {
+    const response = await fetch(`${recordsUrl}?from=${fromDate}&to=${toDate}&page=${page}`, {
         headers: {
             'Authorization': `Bearer ${accessToken}`
         }
     });
-
+    
     if (!response.ok) {
-        throw new Error(`Failed to fetch records: ${response.statusText}`);
+        //console.log('Response url:', response.url);
+        //console.log('Response body:', response.body);
+        throw new Error(`Failed to fetch records: ${response.status} - ${response.statusText}`);
+    } else {
+        console.log(`Fetched page ${page} for date range ${fromDate} to ${toDate}`);
     }
 
     return await response.json();
@@ -80,11 +102,11 @@ const fetchRecordsWithRetry = async (accessToken, fromDate, toDate, page) => {
             return await getRecords(accessToken, fromDate, toDate, page);
         } catch (error) {
             retries++;
+            console.log(`Retrying (${retries}/${maxRetries})...`);
             console.error(`Error fetching page ${page} for date range ${fromDate} to ${toDate}: ${error.message}`);
             if (retries >= maxRetries) {
                 throw error;
             }
-            console.log(`Retrying (${retries}/${maxRetries})...`);
         }
     }
 };
@@ -98,13 +120,14 @@ function todayFormatted() {
     return `${year}-${month}-${day}`;
 }
 
-exports.handler = async (event, context, callback) => {
+exports.handler = async (event, context) => {
     try {
-        const accessToken = await getAccessToken();
         let allRecords = [];
         const endDate = todayFormatted();
         const dateRanges = splitDateRange(startDate, endDate);
+        console.log('Date Ranges:', dateRanges);
 
+        const accessToken = await getAccessToken();
         for (const range of dateRanges) {
             let page = 1;
             let records;
@@ -113,7 +136,7 @@ exports.handler = async (event, context, callback) => {
                 records = await fetchRecordsWithRetry(accessToken, range.from, range.to, page);
                 allRecords = allRecords.concat(records.payload.records);
                 page++;
-            } while (records.payload.records.length === perPage);
+            } while (page <= records.payload.records.total_pages);
         }
 
         // Generate the CSV data as a string with proper newlines
@@ -129,15 +152,12 @@ exports.handler = async (event, context, callback) => {
             body: csvData,
             isBase64Encoded: false  // This ensures that the body is treated as plain text
         };
-        callback(null, response);
+        return response;
     } catch (error) {
         const errorResponse = {
             statusCode: error.response ? error.response.status : 500,
             body: JSON.stringify({ message: error.message }),
         };
-        callback(null, errorResponse);
+        return errorResponse;
     }
 };
-
-
-
