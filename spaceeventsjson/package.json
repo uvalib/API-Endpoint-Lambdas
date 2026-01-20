@@ -1,6 +1,6 @@
 {
   "name": "spaceeventsjson",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "lambda function for getting EMS and LibCal event content into JSON format",
   "main": "index.js",
   "scripts": {},
@@ -20,11 +20,8 @@
     "type": "git",
     "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
   },
+  "engines": {"node" : ">=24 <25"},
   "dependencies": {
-    "axios": "^1.6.2",
     "luxon": "^3.4.4"
-  },
-  "devDependencies": {
-    "eslint": "^7.32.0"
   }
 }
