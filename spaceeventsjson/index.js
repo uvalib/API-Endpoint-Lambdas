@@ -313,7 +313,7 @@ exports.handler = async (event, context) => {
     }
 
     console.log(`Total events fetched: ${json_file.event.length}`);
-    console.log(JSON.stringify(json_file));
+    //console.log(JSON.stringify(json_file));
     return json_file;
   } catch (error) {
     // Normalize error for consistent Lambda responses
