@@ -65,6 +65,11 @@ phases:
       - npm install
       - zip -r ${deploy_payload} .
       #
+      # video-clip-form-email function
+      - cd ${CODEBUILD_SRC_DIR}/video-clip-form-email
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
       # copy to the results bucket
       #
       #
@@ -91,6 +96,9 @@ phases:
       #
       # totaladvisinglibcalspaceevents function
       - aws s3 cp ${CODEBUILD_SRC_DIR}/totaladvisinglibcalspaceevents/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/totaladvisinglibcalspaceevents/${deploy_payload} --quiet
+      #
+      # video-clip-form-email function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/video-clip-form-email/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/video-clip-form-email/${deploy_payload} --quiet
       #
       # create the git commit tag file
       #
