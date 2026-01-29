@@ -44,6 +44,10 @@ phases:
       #
       # totaladvisinglibcalspaceevents function
       - aws lambda update-function-code --function-name totalAdvisingLibcalSpaceEvents --s3-bucket ${deploy_bucket} --s3-key latest/totaladvisinglibcalspaceevents/${deploy_payload}
+      #
+      # video-clip-form-email function
+      - aws lambda update-function-code --function-name video-clip-form-email --s3-bucket ${deploy_bucket} --s3-key latest/video-clip-form-email/${deploy_payload}
+
 
 #  post_build:
 #    commands:
