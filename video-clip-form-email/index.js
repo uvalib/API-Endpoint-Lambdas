@@ -202,6 +202,7 @@ exports.handler = (event) => {
         // Create comments output.
         let comments = pData.fields.find(t=>t.field_id === 3877039) ? pData.fields.find(t=>t.field_id === 3877039).val : '';
         if (comments !== '') {
+            clipInfo += "\n<br>\n<br>\n<br>";
             clipInfo += "<strong>Comments and additional information, if needed:</strong><br>\n" + comments + "<br>\n";
         }
         clipInfo += "</p><br>\n";
@@ -228,9 +229,6 @@ exports.handler = (event) => {
     
         try {
             console.log(`Prepared email options for request ID: ${reqId}`);
-            console.log(JSON.stringify(libraryOptions));
-            console.log('---');
-            console.log(JSON.stringify(patronOptions));
             return postEmail(reqId, libraryOptions, patronOptions);
         }
         catch (error) {
