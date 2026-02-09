@@ -32,22 +32,21 @@ All space events are returned in a JSON format for use with our Visix Panels. JS
 ```
 
 # Instructions for adding rooms to the JSON data
-This script pulls data from EMS, Outlook, and LibCal and combines them into a single data file.
+This script pulls data from EMS, LibCal, and Outlook (via LibCal Outlook integration/sync). The results are combined into a single data file.
 
 ## Adding EMS Managed Room
 1. Get the ID for the room from the appropriate EMS database table. It may be necessary to request this from someone else in LIT. 
 1. Search for the ```roomIdArray``` variable in the index.js file and add the room's ID value to the array. 
 
 ## Adding Outlook Managed Room
-1. Create a space for the Outlook managed room in LibCal making sure it is in a category that is private.
-1. Have the appropriate UVA user/resource account added as a Delegate user to the Outlook room resource.
+1. Create a space for the Outlook managed room in LibCal making sure it is in a Shannon Library Staff Spaces category that is private.
+1. Have the appropriate UVA user/resource account added as a Delegate user to the Outlook room resource (contact Jack for this user account name).
 1. Use the Add Space Sync feature in LibCal to synchronize the Outlook room calendar with its LibCal equivalent space using the authentication of the delegate user in the previous step.
-1. If the space category ID the new Outlook Managed Room is not already in the index.js file add it as suggested in the section below. 
+1. If the space category ID the new Outlook Managed Room is not the one mentioned above then that ID will need to be added in the index.js file to the spaceCategoryIDs array. 
 
 ## Adding LibCal Managed Room
 1. In LibCal's admin interface, identify the category ID the room is a member of.
 1. Search for the ```spaceCategoryIDs``` variable in the index.js file and add the category ID to the array (if it is not already listed in it).
-1. If you add a new array entry (rather than adding to the string of an existing array entry), then you will need to modify the main code section where LibCal API calls are made to execute a call to the new Space Category ID(s). 
 
 ## Adjustment Needed For LibCal Room Resources that share a single Visix digital sign
 Most likely the Outlook room name is not the same as the name in LibCal. To have them be the same in the Visix data change the Outlook data to use the LibCal name using the following steps:
@@ -66,7 +65,7 @@ For node modules to be available in the Lambda console you need to perform the f
 3. Use AWS CLI to upload the code to Lamdba web interface
 `aws lambda update-function-code --function-name spaceEventsJson --zip-file fileb://./spaceeventsjson.zip`
 
-Note: If this fails because of fileb setting, you may need to specify the full path to the zip file.
+Note: If this fails because of files setting, you may need to specify the full path to the zip file.
 
 Note: If the upload fails due to the function not being found in Lamdba because of your default AWS configuration 
 region then you may need to edit that or add a parameter to the aws CLI command.
