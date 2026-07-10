@@ -1,0 +1,9 @@
+# RMC LibAuth Light Kit
+This function is used by the Library API /libauth/rmc/light-kit.csv  endpoint. It takes no parameters. It returns a CSV/text file only containing computing IDs of those who have permission to reserve the light kit.
+
+Several environment variables need to be defined in the AWS Lambda resource for this function to work:
+- LibInsight API client ID: process.env.libinsight_client_id;
+- LibInsight API client secret: process.env.libinsight_client_secret;
+- LibInsight domain: process.env.libinsight_client_domain
+- LibInsight Dataset ID for the light kit's allowed users: process.env.libinsight_light_kit_allow_list_dataset_id
+
