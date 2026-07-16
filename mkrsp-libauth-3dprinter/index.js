@@ -136,7 +136,7 @@ exports.handler = async (event, context) => {
                 records = await fetchRecordsWithRetry(accessToken, range.from, range.to, page);
                 allRecords = allRecords.concat(records.payload.records);
                 page++;
-            } while (page <= records.payload.records.total_pages);
+            } while (page <= records.payload.total_pages);
         }
 
         // Generate the CSV data as a string with proper newlines
