@@ -1,0 +1,24 @@
+{
+  "name": "rmc-libauth-light-kit",
+  "version": "2.0.0",
+  "description": "lambda function for reading data from LibInsight and returning a CSV text file",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "Springshare",
+    "LibAuth",
+    "LibInsight",
+    "lambda",
+    "aws",
+    "CSV"
+  ],
+  "author": "jlk4p@virginia.edu",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uvalib/API-Endpoint-Lambdas.git"
+  },
+  "engines": {"node" : ">=24 <25"},
+  "dependencies": {
+  }
+}

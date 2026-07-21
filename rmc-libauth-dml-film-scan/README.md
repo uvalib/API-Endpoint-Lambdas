@@ -5,5 +5,5 @@ Several environment variables need to be defined in the AWS Lambda resource for 
 - LibInsight API client ID: process.env.libinsight_client_id;
 - LibInsight API client secret: process.env.libinsight_client_secret;
 - LibInsight domain: process.env.libinsight_client_domain
-- LibInsight Dataset ID for the DML Film Scanner's allowed users: process.env.libinsight_dml_film_scan_allow_list_dataset_id
+- LibInsight Dataset ID for the DML Film Scanner's allowed users: process.env.libinsight_dml_film_scanner_allow_list_dataset_id
 
