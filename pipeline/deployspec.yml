@@ -25,10 +25,52 @@ phases:
       - aws lambda update-function-code --function-name libcalhours --s3-bucket ${deploy_bucket} --s3-key latest/libcal-Hours/${deploy_payload}
       #
       # mkrsp-libauth-3dprinter function
-      - aws lambda update-function-code --function-name mkrsp-libauth-3dprinter --s3-bucket ${deploy_bucket} --s3-key latest/mkrsp-libauth-3dprinter/${deploy_payload}
+      #- aws lambda update-function-code --function-name mkrsp-libauth-3dprinter --s3-bucket ${deploy_bucket} --s3-key latest/mkrsp-libauth-3dprinter/${deploy_payload}
       #
       # mkrsp-quiz-3dprinter function
-      - aws lambda update-function-code --function-name mkrsp-quiz-3dprinter --s3-bucket ${deploy_bucket} --s3-key latest/mkrsp-quiz-3dprinter/${deploy_payload}
+      #- aws lambda update-function-code --function-name mkrsp-quiz-3dprinter --s3-bucket ${deploy_bucket} --s3-key latest/mkrsp-quiz-3dprinter/${deploy_payload}
+      #
+      # rmc-libauth-canon-c100 function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-canon-c100/${deploy_payload}
+      #
+      # rmc-libauth-canon-c200 function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-canon-c200/${deploy_payload}
+      #
+      # rmc-libauth-canon-fx300 function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-canon-fx300/${deploy_payload}
+      #
+      # rmc-libauth-canon-rp function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-canon-rp/${deploy_payload}
+      #
+      # rmc-libauth-dml-film-scan function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-dml-film-scan/${deploy_payload}
+      #
+      # rmc-libauth-light-kit function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-light-kit/${deploy_payload}
+      #
+      # rmc-libauth-photo-anim-studio function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-photo-anim-studio/${deploy_payload}
+      #
+      # rmc-libauth-portable-pa function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-portable-pa/${deploy_payload}
+      #
+      # rmc-libauth-prt-3d-makerbot function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-prt-3d-makerbot/${deploy_payload}
+      #
+      # rmc-libauth-prt-3d-taz6 function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-prt-3d-taz6/${deploy_payload}
+      #
+      # rmc-libauth-prt-3d-ultimaker3 function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-prt-3d-ultimaker3/${deploy_payload}
+      #
+      # rmc-libauth-prt-3d-ultimaker5 function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-prt-3d-ultimaker5/${deploy_payload}
+      #
+      # rmc-libauth-video-studio function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-video-studio/${deploy_payload}
+      #
+      # rmc-libauth-wireless-lav function
+      #- aws lambda update-function-code --function-name xxx --s3-bucket ${deploy_bucket} --s3-key latest/rmc-libauth-wireless-lav/${deploy_payload}
       #
       # purchaserequestsubmit function
       - aws lambda update-function-code --function-name purchaserequestsubmit --s3-bucket ${deploy_bucket} --s3-key latest/purchaserequestsubmit/${deploy_payload}

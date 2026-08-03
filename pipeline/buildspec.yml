@@ -31,12 +31,82 @@ phases:
       - zip -r ${deploy_payload} .
       #
       # mkrsp-libauth-3dprinter function
-      - cd ${CODEBUILD_SRC_DIR}/mkrsp-libauth-3dprinter
+      #- cd ${CODEBUILD_SRC_DIR}/mkrsp-libauth-3dprinter
+      #- npm install
+      #- zip -r ${deploy_payload} .
+      #
+      # mkrsp-quiz-3dprinter function
+      #- cd ${CODEBUILD_SRC_DIR}/mkrsp-quiz-3dprinter
+      #- npm install
+      #- zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-canon-c100 function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-canon-c100
       - npm install
       - zip -r ${deploy_payload} .
       #
-      # mkrsp-quiz-3dprinter function
-      - cd ${CODEBUILD_SRC_DIR}/mkrsp-quiz-3dprinter
+      # rmc-libauth-canon-c200 function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-canon-c200
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-canon-fx300 function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-canon-fx300
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-canon-rp function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-canon-rp
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-dml-film-scan function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-dml-film-scan
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-light-kit function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-light-kit
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-photo-anim-studio function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-photo-anim-studio
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-portable-pa function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-portable-pa
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-prt-3d-makerbot function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-prt-3d-makerbot
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-prt-3d-taz6 function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-prt-3d-taz6
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-prt-3d-ultimaker3 function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-prt-3d-ultimaker3
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-prt-3d-ultimaker5 function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-prt-3d-ultimaker5
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-video-studio function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-video-studio
+      - npm install
+      - zip -r ${deploy_payload} .
+      #
+      # rmc-libauth-wireless-lav function
+      - cd ${CODEBUILD_SRC_DIR}/rmc-libauth-wireless-lav
       - npm install
       - zip -r ${deploy_payload} .
       #
@@ -77,10 +147,52 @@ phases:
       - aws s3 cp ${CODEBUILD_SRC_DIR}/libcal-Hours/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/libcal-Hours/${deploy_payload} --quiet
       #
       # mkrsp-libauth-3dprinter function
-      - aws s3 cp ${CODEBUILD_SRC_DIR}/mkrsp-libauth-3dprinter/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/mkrsp-libauth-3dprinter/${deploy_payload} --quiet
+      #- aws s3 cp ${CODEBUILD_SRC_DIR}/mkrsp-libauth-3dprinter/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/mkrsp-libauth-3dprinter/${deploy_payload} --quiet
       #
       # mkrsp-quiz-3dprinter function
-      - aws s3 cp ${CODEBUILD_SRC_DIR}/mkrsp-quiz-3dprinter/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/mkrsp-quiz-3dprinter/${deploy_payload} --quiet
+      #- aws s3 cp ${CODEBUILD_SRC_DIR}/mkrsp-quiz-3dprinter/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/mkrsp-quiz-3dprinter/${deploy_payload} --quiet
+
+      # rmc-libauth-canon-c100 function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-canon-c100/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-canon-c100/${deploy_payload} --quiet
+      #
+      # rmc-libauth-canon-c200 function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-canon-c200/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-canon-c200/${deploy_payload} --quiet
+      #
+      # rmc-libauth-canon-fx300 function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-canon-fx300/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-canon-fx300/${deploy_payload} --quiet
+      #
+      # rmc-libauth-canon-rp function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-canon-rp/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-canon-rp/${deploy_payload} --quiet
+      #
+      # rmc-libauth-dml-film-scan function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-dml-film-scan/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-dml-film-scan/${deploy_payload} --quiet
+      #
+      # rmc-libauth-light-kit function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-light-kit/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-light-kit/${deploy_payload} --quiet
+      #
+      # rmc-libauth-photo-anim-studio function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-photo-anim-studio/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-photo-anim-studio/${deploy_payload} --quiet
+      #
+      # rmc-libauth-portable-pa function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-portable-pa/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-portable-pa/${deploy_payload} --quiet
+      #
+      # rmc-libauth-prt-3d-makerbot function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-prt-3d-makerbot/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-prt-3d-makerbot/${deploy_payload} --quiet
+      #
+      # rmc-libauth-prt-3d-taz6 function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-prt-3d-taz6/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-prt-3d-taz6/${deploy_payload} --quiet
+      #
+      # rmc-libauth-prt-3d-ultimaker3 function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-prt-3d-ultimaker3/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-prt-3d-ultimaker3/${deploy_payload} --quiet
+      #
+      # rmc-libauth-prt-3d-ultimaker5 function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-prt-3d-ultimaker5/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-prt-3d-ultimaker5/${deploy_payload} --quiet
+      #
+      # rmc-libauth-video-studio function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-video-studio/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-video-studio/${deploy_payload} --quiet
+      #
+      # rmc-libauth-wireless-lav function
+      - aws s3 cp ${CODEBUILD_SRC_DIR}/rmc-libauth-wireless-lav/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/rmc-libauth-wireless-lav/${deploy_payload} --quiet
       #
       # purchaserequestsubmit function
       - aws s3 cp ${CODEBUILD_SRC_DIR}/purchaserequestsubmit/${deploy_payload} s3://${deploy_bucket}/${BUILD_VERSION}/purchaserequestsubmit/${deploy_payload} --quiet
